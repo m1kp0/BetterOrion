@@ -1,5 +1,5 @@
 -- Load BetterOrion --
-local BetterOrion = loadstring(game:HttpGet("https://raw.githubusercontent.com/m1kp0/BetterOrion/refs/heads/main/Library.lua"))() -- Load BetterOrion library
+local BetterOrion = loadstring(readfile("orion.lua"))() -- Load BetterOrion library
 
 -- Elements list --
 local Elm = {
@@ -65,16 +65,16 @@ Func.GetRoot = function(Char) return Func.FindWaitChild(Char, "HumanoidRootPart"
 -- Window creation -- 
 Elm.Window = BetterOrion:MakeWindow({ 
 	Name = "BetterOrion",
-	SubName = "v0.0.1 alpha beta omega delta", 
+	SubName = "v0.0.1 Example", 
 	SubNameSide = "Center",
 	
 	IntroEnabled = true, 
 	IntroIcon = "accessibility", 
 	IntroText = "BetterOrion,\nWelcome!", 
 	
-	Size = UDim2.fromOffset(600, 400),
-	MinSize = UDim2.fromOffset(600, 200),
-	MaxSize = UDim2.fromOffset(4000, 2000),
+	Size = UDim2.new(0, 500, 0, 350),
+	MinSize = UDim2.new(0, 500, 0, 200),
+	MaxSize = UDim2.new(0, 9999, 0, 9999),
 	
 	Theme = "Default",
 	Transparency = 0.35,
@@ -285,8 +285,6 @@ Elm.Sect.Movement:AddBind({
 	end
 })
 
-
--- Game connectons --
 Func.AddConn(Me.CharacterAdded, "CharacterAddedConn", function(Char)
 	local Hum = Char and Func.GetHum(Char)
 
