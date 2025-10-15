@@ -1,5 +1,5 @@
 -- Load BetterOrion --
-local BetterOrion = loadstring(readfile("orion.lua"))() -- Load BetterOrion library
+local BetterOrion = loadstring(game:HttpGet("https://raw.githubusercontent.com/m1kp0/BetterOrion/refs/heads/main/Library.lua"))() -- Load BetterOrion library
 
 -- Elements list --
 local Elm = {
