@@ -331,6 +331,7 @@ function OrionLib:MakeWindow(WindowConfig)
 	local Minimized = false
 	local Loaded = false
 	local UIHidden = false
+	local Tab = ""
 
 	WindowConfig = WindowConfig or {}
 	WindowConfig.Name = WindowConfig.Name or "Better Orion"
@@ -563,6 +564,7 @@ function OrionLib:MakeWindow(WindowConfig)
 		end
 	end)
 
+	local VisibleContainers = {}
 	AddConnection(MinimizeBtn.MouseButton1Up, function()
 		if Minimized then
 			TweenService:Create(MainWindow, TweenInfo.new(0.5, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {Size = WindowConfig.Size}):Play()
@@ -573,11 +575,11 @@ function OrionLib:MakeWindow(WindowConfig)
 			MainWindow.ClipsDescendants = false
 			WindowStuff.Visible = true
 			WindowTopBarLine.Visible = true
-			for i, Container in pairs(CoreGui.Orion:GetChildren()[2]:GetChildren()) do
-				if Container.Name == "ItemContainerLeft" or Container.Name == "ItemContainerRight" then
-					Container.Visible = true
-				end
+			for i, v in pairs(VisibleContainers) do
+				print(i..":"..v.Name)
+				v.Visible = true
 			end
+			VisibleContainers = {}
 		else
 			MainWindow.ClipsDescendants = true
 			WindowTopBarLine.Visible = false
@@ -588,15 +590,18 @@ function OrionLib:MakeWindow(WindowConfig)
 			ResizePoint.Visible = false
 			wait(0.1)
 			WindowStuff.Visible = false
-			for i, Container in pairs(CoreGui.Orion:GetChildren()[2]:GetChildren()) do
+			for i, Container in pairs(MainWindow:GetChildren()) do
 				if Container.Name == "ItemContainerLeft" or Container.Name == "ItemContainerRight" then
-					Container.Visible = false
+					if Container.Visible then
+						Container.Visible = false
+						table.insert(VisibleContainers, Container)
+						print(Container.Name)
+					end
 				end
 			end
 		end
 		Minimized = not Minimized    
 	end)
-
 	local function LoadSequence()
 		MainWindow.Visible = false
 		local LoadSequenceLogo = SetProps(MakeElement("Image", WindowConfig.IntroIcon), {
@@ -652,10 +657,13 @@ function OrionLib:MakeWindow(WindowConfig)
 		TabConfig.Icon = TabConfig.Icon or ""
 		TabConfig.PremiumOnly = TabConfig.PremiumOnly or false
 
+		Tab = TabConfig.Name
+
 		local TabFrame = SetChildren(SetProps(MakeElement("Button"), {
 			Size = UDim2.new(1, 0, 0, 30),
 			Parent = TabHolder,
 			TextWrapped = true,
+			Name = Tab,
 		}), {
 			AddThemeObject(SetProps(MakeElement("Image", GetLucideIcon(TabConfig.Icon)), {
 				AnchorPoint = Vector2.new(0, 0.5),
@@ -723,12 +731,7 @@ function OrionLib:MakeWindow(WindowConfig)
 				end    
 			end
 			for _, Container in next, MainWindow:GetChildren() do
-				if Container.Name == "ItemContainerLeft" then
-					Container.Visible = false
-				end    
-			end  
-         for _, Container in next, MainWindow:GetChildren() do
-				if Container.Name == "ItemContainerRight" then
+				if Container.Name == "ItemContainerLeft" or Container.Name == "ItemContainerRight" then
 					Container.Visible = false
 				end    
 			end  
@@ -756,11 +759,6 @@ function OrionLib:MakeWindow(WindowConfig)
 					}), "Text"),
 					AddThemeObject(MakeElement("Stroke"), "Stroke")
 				}), "Elements")
-
-				AddConnection(LabelFrame.Content:GetPropertyChangedSignal("Text"), function()
-					LabelFrame.Content.Size = UDim2.new(1, -24, 0, LabelFrame.Content.TextBounds.Y)
-					LabelFrame.Size = UDim2.new(1, 0, 0, LabelFrame.Content.TextBounds.Y + 35)
-				end)
 
 				local LabelFunction = {}
 				function LabelFunction:Set(ToChange)
@@ -792,11 +790,6 @@ function OrionLib:MakeWindow(WindowConfig)
 					}), "TextDark"),
 					AddThemeObject(MakeElement("Stroke"), "Stroke")
 				}), "Elements")
-
-				AddConnection(ParagraphFrame.Content:GetPropertyChangedSignal("Text"), function()
-					ParagraphFrame.Content.Size = UDim2.new(1, -24, 0, ParagraphFrame.Content.TextBounds.Y)
-					ParagraphFrame.Size = UDim2.new(1, 0, 0, ParagraphFrame.Content.TextBounds.Y + 35)
-				end)
 
 				ParagraphFrame.Content.Text = Content
 
@@ -844,11 +837,6 @@ function OrionLib:MakeWindow(WindowConfig)
 				function Button:Set(ButtonText)
 					ButtonFrame.Content.Text = ButtonText
 				end
-
-				AddConnection(ButtonFrame.Content:GetPropertyChangedSignal("Text"), function()
-					ButtonFrame.Content.Size = UDim2.new(1, -24, 0, ButtonFrame.Content.TextBounds.Y)
-					ButtonFrame.Size = UDim2.new(1, 0, 0, ButtonFrame.Content.TextBounds.Y + 35)
-				end)
 
 				AddConnection(Click.MouseEnter, function()
 					TweenService:Create(ButtonFrame, TweenInfo.new(0.25, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {BackgroundColor3 = Color3.fromRGB(OrionLib.Themes[OrionLib.SelectedTheme].Elements.R * 255 + 3, OrionLib.Themes[OrionLib.SelectedTheme].Elements.G * 255 + 3, OrionLib.Themes[OrionLib.SelectedTheme].Elements.B * 255 + 3)}):Play()
@@ -1255,7 +1243,6 @@ function OrionLib:MakeWindow(WindowConfig)
 						Font = Enum.Font.GothamBold,
 						TextXAlignment = Enum.TextXAlignment.Center,
 						Name = "Value",
-						TextWrapped = true,
 					}), "Text")
 				}), "Main")
 
@@ -1268,17 +1255,13 @@ function OrionLib:MakeWindow(WindowConfig)
 						Size = UDim2.new(1, -12, 1, 0),
 						Position = UDim2.new(0, 12, 0, 0),
 						Font = Enum.Font.GothamBold,
-						Name = "Content"
+						Name = "Content",
+						TextWrapped = true,
 					}), "Text"),
 					AddThemeObject(MakeElement("Stroke"), "Stroke"),
 					BindBox,
 					Click
 				}), "Elements")
-
-				AddConnection(BindFrame.Content:GetPropertyChangedSignal("Text"), function()
-					BindFrame.Content.Size = UDim2.new(1, -24, 0, BindFrame.Content.TextBounds.Y)
-					BindFrame.Size = UDim2.new(1, 0, 0, BindFrame.Content.TextBounds.Y + 35)
-				end)
 
 				AddConnection(BindBox.Value:GetPropertyChangedSignal("Text"), function()
 					TweenService:Create(BindBox, TweenInfo.new(0.25, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {Size = UDim2.new(0, BindBox.Value.TextBounds.X + 16, 0, 24)}):Play()
@@ -1538,11 +1521,6 @@ function OrionLib:MakeWindow(WindowConfig)
 					ColorpickerContainer,
 					AddThemeObject(MakeElement("Stroke"), "Stroke"),
 				}), "Elements")
-
-				AddConnection(ColorpickerFrame.Content:GetPropertyChangedSignal("Text"), function()
-					ColorpickerFrame.Content.Size = UDim2.new(1, -24, 0, ColorpickerFrame.Content.TextBounds.Y)
-					ColorpickerFrame.Size = UDim2.new(1, 0, 0, ColorpickerFrame.Content.TextBounds.Y + 35)
-				end)
 
 				AddConnection(Click.MouseButton1Click, function()
 					Colorpicker.Toggled = not Colorpicker.Toggled
