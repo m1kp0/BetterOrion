@@ -350,7 +350,7 @@ function OrionLib:MakeWindow(WindowConfig)
 	OrionLib.ToggleUIKey = WindowConfig.ToggleUIKey
 
 	local TabHolder = AddThemeObject(SetChildren(SetProps(MakeElement("ScrollFrame", Color3.fromRGB(255, 255, 255)), {
-		Size = UDim2.new(1, 0, 1, 0),
+		Size = UDim2.fromScale(1, 1),
 		BackgroundTransparency = 1,
 	}), {
 		MakeElement("List"),
@@ -395,7 +395,7 @@ function OrionLib:MakeWindow(WindowConfig)
    })
 
 	local WindowStuff = AddThemeObject(SetChildren(SetProps(MakeElement("RoundFrame", Color3.fromRGB(255, 255, 255), 0, 10), {
-		Size = UDim2.new(0, 150, 1, -50),
+		Size = UDim2.new(0.2, 0, 1, -50),
 		Position = UDim2.new(0, 0, 0, 50),
 		BackgroundTransparency = 1,
 	}), {
@@ -425,9 +425,11 @@ function OrionLib:MakeWindow(WindowConfig)
 	}), "Text")
 
 	local WindowSubName = AddThemeObject(SetProps(MakeElement("Label", WindowConfig.SubName, 14), {
-		Size = UDim2.new(1, 0, 0.5, -12),
+		Size = UDim2.new(1, WindowName.TextBounds.X - 240, 1, 0),
+		Position = UDim2.new(0, WindowName.TextBounds.X + 140, 0, -18),
 		Font = Enum.Font.GothamSemibold,
 		TextSize = 14,
+		TextWrapped = true,
 		TextXAlignment = Enum.TextXAlignment.Center
 	}), "TextDark")
 
@@ -653,6 +655,7 @@ function OrionLib:MakeWindow(WindowConfig)
 		local TabFrame = SetChildren(SetProps(MakeElement("Button"), {
 			Size = UDim2.new(1, 0, 0, 30),
 			Parent = TabHolder,
+			TextWrapped = true,
 		}), {
 			AddThemeObject(SetProps(MakeElement("Image", GetLucideIcon(TabConfig.Icon)), {
 				AnchorPoint = Vector2.new(0, 0.5),
@@ -666,6 +669,7 @@ function OrionLib:MakeWindow(WindowConfig)
 				Position = UDim2.new(0, 35, 0, 0),
 				Font = Enum.Font.GothamSemibold,
 				TextTransparency = 0.4,
+				TextWrapped = true,
 				Name = "Title"
 			}), "Text")
 		})
@@ -743,14 +747,20 @@ function OrionLib:MakeWindow(WindowConfig)
 					BackgroundTransparency = WindowConfig.ElementsTransparency,
 					Parent = ItemParent
 				}), {
-					AddThemeObject(SetProps(MakeElement("Label", Text, 15), {
+					AddThemeObject(SetProps(MakeElement("Label", Text, 14), {
 						Size = UDim2.new(1, -12, 1, 0),
 						Position = UDim2.new(0, 12, 0, 0),
 						Font = Enum.Font.GothamBold,
-						Name = "Content"
+						Name = "Content",
+						TextWrapped = true,
 					}), "Text"),
 					AddThemeObject(MakeElement("Stroke"), "Stroke")
 				}), "Elements")
+
+				AddConnection(LabelFrame.Content:GetPropertyChangedSignal("Text"), function()
+					LabelFrame.Content.Size = UDim2.new(1, -24, 0, LabelFrame.Content.TextBounds.Y)
+					LabelFrame.Size = UDim2.new(1, 0, 0, LabelFrame.Content.TextBounds.Y + 35)
+				end)
 
 				local LabelFunction = {}
 				function LabelFunction:Set(ToChange)
@@ -767,7 +777,7 @@ function OrionLib:MakeWindow(WindowConfig)
 					BackgroundTransparency = WindowConfig.ElementsTransparency,
 					Parent = ItemParent
 				}), {
-					AddThemeObject(SetProps(MakeElement("Label", Text, 15), {
+					AddThemeObject(SetProps(MakeElement("Label", Text, 14), {
 						Size = UDim2.new(1, -12, 0, 14),
 						Position = UDim2.new(0, 12, 0, 10),
 						Font = Enum.Font.GothamBold,
@@ -816,11 +826,12 @@ function OrionLib:MakeWindow(WindowConfig)
 					BackgroundTransparency = WindowConfig.ElementsTransparency,
                BackgroundColor3 = Color3.fromRGB(255, 255, 255),
 				}), {
-					AddThemeObject(SetProps(MakeElement("Label", ButtonConfig.Name, 15), {
-						Size = UDim2.new(1, -12, 1, 0),
+					AddThemeObject(SetProps(MakeElement("Label", ButtonConfig.Name, 14), {
+						Size = UDim2.new(1, -40, 1, 0),
 						Position = UDim2.new(0, 12, 0, 0),
 						Font = Enum.Font.GothamBold,
 						Name = "Content",
+						TextWrapped = true,
 					}), "Text"),
 					AddThemeObject(SetProps(MakeElement("Image", ButtonConfig.Icon), {
 						Size = UDim2.new(0, 20, 0, 20),
@@ -833,6 +844,11 @@ function OrionLib:MakeWindow(WindowConfig)
 				function Button:Set(ButtonText)
 					ButtonFrame.Content.Text = ButtonText
 				end
+
+				AddConnection(ButtonFrame.Content:GetPropertyChangedSignal("Text"), function()
+					ButtonFrame.Content.Size = UDim2.new(1, -24, 0, ButtonFrame.Content.TextBounds.Y)
+					ButtonFrame.Size = UDim2.new(1, 0, 0, ButtonFrame.Content.TextBounds.Y + 35)
+				end)
 
 				AddConnection(Click.MouseEnter, function()
 					TweenService:Create(ButtonFrame, TweenInfo.new(0.25, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {BackgroundColor3 = Color3.fromRGB(OrionLib.Themes[OrionLib.SelectedTheme].Elements.R * 255 + 3, OrionLib.Themes[OrionLib.SelectedTheme].Elements.G * 255 + 3, OrionLib.Themes[OrionLib.SelectedTheme].Elements.B * 255 + 3)}):Play()
@@ -909,11 +925,12 @@ function OrionLib:MakeWindow(WindowConfig)
 					Parent = ItemParent,
 					BackgroundTransparency = WindowConfig.ElementsTransparency,
 				}), {
-					AddThemeObject(SetProps(MakeElement("Label", ToggleConfig.Name, 15), {
-						Size = UDim2.new(1, -12, 1, 0),
+					AddThemeObject(SetProps(MakeElement("Label", ToggleConfig.Name, 14), {
+						Size = UDim2.new(1, -50, 1, 0),
 						Position = UDim2.new(0, 12, 0, 0),
 						Font = Enum.Font.GothamBold,
-						Name = "Content"
+						Name = "Content",
+						TextWrapped = true,
 					}), "Text"),
 					AddThemeObject(MakeElement("Stroke"), "Stroke"),
 					ToggleBox,
@@ -978,7 +995,7 @@ function OrionLib:MakeWindow(WindowConfig)
 						Position = UDim2.new(0, 12, 0, 6),
 						Font = Enum.Font.GothamBold,
 						Name = "Value",
-						TextTransparency = 0
+						TextTransparency = 0,
 					}), "Text")
 				})
 
@@ -1005,15 +1022,21 @@ function OrionLib:MakeWindow(WindowConfig)
 					Parent = ItemParent,
 					BackgroundTransparency = WindowConfig.ElementsTransparency,
 				}), {
-					AddThemeObject(SetProps(MakeElement("Label", SliderConfig.Name, 15), {
+					AddThemeObject(SetProps(MakeElement("Label", SliderConfig.Name, 14), {
 						Size = UDim2.new(1, -12, 0, 14),
 						Position = UDim2.new(0, 12, 0, 10),
 						Font = Enum.Font.GothamBold,
-						Name = "Content"
+						Name = "Content",
+						TextWrapped = true,
 					}), "Text"),
 					AddThemeObject(MakeElement("Stroke"), "Stroke"),
 					SliderBar
 				}), "Elements")
+				
+				AddConnection(SliderFrame.Content:GetPropertyChangedSignal("Text"), function()
+					SliderFrame.Content.Size = UDim2.new(1, -24, 0, SliderFrame.Content.TextBounds.Y)
+					SliderFrame.Size = UDim2.new(1, 0, 0, SliderFrame.Content.TextBounds.Y + 35)
+				end)
 
 				SliderBar.InputBegan:Connect(function(Input)
 					if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then 
@@ -1084,7 +1107,7 @@ function OrionLib:MakeWindow(WindowConfig)
 				}), {
 					DropdownContainer,
 					SetProps(SetChildren(MakeElement("TFrame"), {
-						AddThemeObject(SetProps(MakeElement("Label", DropdownConfig.Name, 15), {
+						AddThemeObject(SetProps(MakeElement("Label", DropdownConfig.Name, 14), {
 							Size = UDim2.new(1, -12, 1, 0),
 							Position = UDim2.new(0, 12, 0, 0),
 							Font = Enum.Font.GothamBold,
@@ -1231,7 +1254,8 @@ function OrionLib:MakeWindow(WindowConfig)
 						Size = UDim2.new(1, 0, 1, 0),
 						Font = Enum.Font.GothamBold,
 						TextXAlignment = Enum.TextXAlignment.Center,
-						Name = "Value"
+						Name = "Value",
+						TextWrapped = true,
 					}), "Text")
 				}), "Main")
 
@@ -1240,7 +1264,7 @@ function OrionLib:MakeWindow(WindowConfig)
 					Parent = ItemParent,
 					BackgroundTransparency = WindowConfig.ElementsTransparency,
 				}), {
-					AddThemeObject(SetProps(MakeElement("Label", BindConfig.Name, 15), {
+					AddThemeObject(SetProps(MakeElement("Label", BindConfig.Name, 14), {
 						Size = UDim2.new(1, -12, 1, 0),
 						Position = UDim2.new(0, 12, 0, 0),
 						Font = Enum.Font.GothamBold,
@@ -1250,6 +1274,11 @@ function OrionLib:MakeWindow(WindowConfig)
 					BindBox,
 					Click
 				}), "Elements")
+
+				AddConnection(BindFrame.Content:GetPropertyChangedSignal("Text"), function()
+					BindFrame.Content.Size = UDim2.new(1, -24, 0, BindFrame.Content.TextBounds.Y)
+					BindFrame.Size = UDim2.new(1, 0, 0, BindFrame.Content.TextBounds.Y + 35)
+				end)
 
 				AddConnection(BindBox.Value:GetPropertyChangedSignal("Text"), function()
 					TweenService:Create(BindBox, TweenInfo.new(0.25, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {Size = UDim2.new(0, BindBox.Value.TextBounds.X + 16, 0, 24)}):Play()
@@ -1366,11 +1395,12 @@ function OrionLib:MakeWindow(WindowConfig)
 					Parent = ItemParent,
 					BackgroundTransparency = WindowConfig.ElementsTransparency,
 				}), {
-					AddThemeObject(SetProps(MakeElement("Label", TextboxConfig.Name, 15), {
+					AddThemeObject(SetProps(MakeElement("Label", TextboxConfig.Name, 14), {
 						Size = UDim2.new(1, -12, 1, 0),
 						Position = UDim2.new(0, 12, 0, 0),
 						Font = Enum.Font.GothamBold,
-						Name = "Content"
+						Name = "Content",
+						TextWrapped = true,
 					}), "Text"),
 					AddThemeObject(MakeElement("Stroke"), "Stroke"),
 					TextContainer,
@@ -1489,7 +1519,8 @@ function OrionLib:MakeWindow(WindowConfig)
 							Size = UDim2.new(1, 0, 0, 38),
 							Position = UDim2.new(0, 12, 0, 0),
 							Font = Enum.Font.GothamBold,
-							Name = "Content"
+							Name = "Content",
+							TextWrapped = true,
 						}), "Text"),
 						ColorpickerBox,
 						Click,
@@ -1507,6 +1538,11 @@ function OrionLib:MakeWindow(WindowConfig)
 					ColorpickerContainer,
 					AddThemeObject(MakeElement("Stroke"), "Stroke"),
 				}), "Elements")
+
+				AddConnection(ColorpickerFrame.Content:GetPropertyChangedSignal("Text"), function()
+					ColorpickerFrame.Content.Size = UDim2.new(1, -24, 0, ColorpickerFrame.Content.TextBounds.Y)
+					ColorpickerFrame.Size = UDim2.new(1, 0, 0, ColorpickerFrame.Content.TextBounds.Y + 35)
+				end)
 
 				AddConnection(Click.MouseButton1Click, function()
 					Colorpicker.Toggled = not Colorpicker.Toggled
