@@ -38,10 +38,10 @@ local OrionLib = {
 -- Core
 	local Orion = Instance.new("ScreenGui")
 	Orion.Name = "Orion"
-	Orion.Parent = gethui() or CoreGui
+	Orion.Parent = CoreGui
 
 	function OrionLib:IsRunning()
-		return Orion.Parent == gethui() or Orion.Parent == CoreGui
+		return Orion.Parent == CoreGui
 	end
 
 -- Local functions --
