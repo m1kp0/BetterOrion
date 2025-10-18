@@ -33,16 +33,24 @@ local OrionLib = {
 
 -- Icons
 	local Icons = {}
-	local LucideIcons = loadstring(game:HttpGet("https://raw.githubusercontent.com/m1kp0/orion-2/refs/heads/main/Icons.lua"))().assets
+	local LucideIcons = loadstring(game:HttpGet("https://raw.githubusercontent.com/m1kp0/BetterOrion/refs/heads/main/Icons.lua"))().assets
 
 -- Core
-	getgenv().gethui = function() return game.CoreGui end
 	local Orion = Instance.new("ScreenGui")
 	Orion.Name = "Orion"
-	Orion.Parent = gethui() or CoreGui
+	if syn then
+		syn.protect_gui(Orion)
+		Orion.Parent = CoreGui
+	else
+		Orion.Parent = gethui() or CoreGui 
+	end
 
 	function OrionLib:IsRunning()
-		return Orion.Parent == gethui() or Orion.Parent == CoreGui
+		if gethui then
+			return Orion.Parent == gethui()
+		else
+			return Orion.Parent == CoreGui
+		end
 	end
 
 -- Local functions --
@@ -816,12 +824,12 @@ function OrionLib:MakeWindow(WindowConfig)
 					AddThemeObject(MakeElement("Stroke"), "Stroke")
 				}), "Elements")
 
-				ParagraphFrame.Content.Text = Content
-
 				AddConnection(ParagraphFrame.Content:GetPropertyChangedSignal("Text"), function()
 					ParagraphFrame.Content.Size = UDim2.new(1, -24, 0, ParagraphFrame.Content.TextBounds.Y)
 					ParagraphFrame.Size = UDim2.new(1, 0, 0, ParagraphFrame.Content.TextBounds.Y + 35)
 				end)
+
+				ParagraphFrame.Content.Text = Content
 
 				local ParagraphFunction = {}
 				function ParagraphFunction:Set(ToChange)
