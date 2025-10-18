@@ -36,12 +36,13 @@ local OrionLib = {
 	local LucideIcons = loadstring(game:HttpGet("https://raw.githubusercontent.com/m1kp0/orion-2/refs/heads/main/Icons.lua"))().assets
 
 -- Core
+	getgenv().gethui = function() return game.CoreGui end
 	local Orion = Instance.new("ScreenGui")
 	Orion.Name = "Orion"
-	Orion.Parent = CoreGui
+	Orion.Parent = gethui() or CoreGui
 
 	function OrionLib:IsRunning()
-		return Orion.Parent == CoreGui
+		return Orion.Parent == gethui() or Orion.Parent == CoreGui
 	end
 
 -- Local functions --
@@ -580,7 +581,6 @@ function OrionLib:MakeWindow(WindowConfig)
 				WindowStuff.Visible = true
 				WindowTopBarLine.Visible = true
 				for i, v in pairs(VisibleContainers) do
-					print(i..":"..v.Name)
 					v.Visible = true
 				end
 				VisibleContainers = {}
@@ -599,7 +599,6 @@ function OrionLib:MakeWindow(WindowConfig)
 						if Container.Visible then
 							Container.Visible = false
 							table.insert(VisibleContainers, Container)
-							print(Container.Name)
 						end
 					end
 				end
@@ -654,6 +653,10 @@ function OrionLib:MakeWindow(WindowConfig)
 
 		function TabFunction:GetColor()
 			return MainWindow.BackgroundColor3
+		end
+
+		function TabFunction:SetTransparency(Transparency)
+			MainWindow.BackgroundTransparency = Transparency
 		end
 
 		function TabFunction:SetToggleKey(Key)
@@ -776,6 +779,12 @@ function OrionLib:MakeWindow(WindowConfig)
 					AddThemeObject(MakeElement("Stroke"), "Stroke")
 				}), "Elements")
 
+				AddConnection(LabelFrame.Content:GetPropertyChangedSignal("Text"), function()
+					LabelFrame.Content.Size = UDim2.new(1, -24, 0, LabelFrame.Content.TextBounds.Y)
+					LabelFrame.Content.Position = UDim2.new(0, 12, 0, 6)
+					LabelFrame.Size = UDim2.new(1, 0, 0, LabelFrame.Content.TextBounds.Y + 12)
+				end)
+
 				local LabelFunction = {}
 				function LabelFunction:Set(ToChange)
 					LabelFrame.Content.Text = ToChange
@@ -838,7 +847,6 @@ function OrionLib:MakeWindow(WindowConfig)
 					Size = UDim2.new(1, 0, 0, 33),
 					Parent = ItemParent,
 					BackgroundTransparency = WindowConfig.ElementsTransparency,
-               BackgroundColor3 = Color3.fromRGB(255, 255, 255),
 				}), {
 					AddThemeObject(SetProps(MakeElement("Label", ButtonConfig.Name, 14), {
 						Size = UDim2.new(1, -40, 1, 0),
@@ -857,6 +865,14 @@ function OrionLib:MakeWindow(WindowConfig)
 
 				function Button:Set(ButtonText)
 					ButtonFrame.Content.Text = ButtonText
+				end
+
+				function Button:SetColor(Color)
+					ButtonFrame.BackgroundColor3 = Color
+				end
+
+				function Button:SetTransparency(Transparency)
+					ButtonFrame.BackgroundTransparency = Transparency
 				end
 
 				AddConnection(Click.MouseEnter, function()
@@ -953,6 +969,14 @@ function OrionLib:MakeWindow(WindowConfig)
 					TweenService:Create(ToggleBox.Ico, TweenInfo.new(0.3, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {ImageTransparency = Toggle.Value and 0 or 1, Size = Toggle.Value and UDim2.new(0, 20, 0, 20) or UDim2.new(0, 8, 0, 8)}):Play()
 					ToggleConfig.Callback(Toggle.Value)
 				end    
+
+				function Toggle:SetColor(Color)
+					ToggleFrame.BackgroundColor3 = Color
+				end
+
+				function Toggle:SetTransparency(Transparency)
+					ToggleFrame.BackgroundTransparency = Transparency
+				end
 
 				Toggle:Set(Toggle.Value)
 
@@ -1071,7 +1095,15 @@ function OrionLib:MakeWindow(WindowConfig)
 					SliderBar.Value.Text = tostring(self.Value) .. " " .. SliderConfig.ValueName
 					SliderDrag.Value.Text = tostring(self.Value) .. " " .. SliderConfig.ValueName
 					SliderConfig.Callback(self.Value)
-				end      
+				end     
+				
+				function Slider:SetColor(Color)
+					SliderFrame.BackgroundColor3 = Color
+				end
+
+				function Slider:SetTransparency(Transparency)
+					SliderFrame.BackgroundTransparency = tonumber(Transparency)
+				end
 
 				Slider:Set(Slider.Value)
 				if SliderConfig.Flag then OrionLib.Flags[SliderConfig.Flag] = Slider end
@@ -1128,12 +1160,6 @@ function OrionLib:MakeWindow(WindowConfig)
 							Position = UDim2.new(1, -30, 0.5, 0),
 							ImageColor3 = Color3.fromRGB(240, 240, 240),
 							Name = "Ico"
-						}), "TextDark"),
-						AddThemeObject(SetProps(MakeElement("Label", "Selected", 13), {
-							Size = UDim2.new(1, -40, 1, 0),
-							Font = Enum.Font.Gotham,
-							Name = "Selected",
-							TextXAlignment = Enum.TextXAlignment.Right
 						}), "TextDark"),
 						AddThemeObject(SetProps(MakeElement("Frame"), {
 							Size = UDim2.new(1, 0, 0, 1),
@@ -1194,7 +1220,6 @@ function OrionLib:MakeWindow(WindowConfig)
 				function Dropdown:Set(Value)
 					if not table.find(Dropdown.Options, Value) then
 						Dropdown.Value = "..."
-						DropdownFrame.F.Selected.Text = Dropdown.Value
 						for _, v in pairs(Dropdown.Buttons) do
 							TweenService:Create(v,TweenInfo.new(.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),{BackgroundTransparency = 1}):Play()
 							TweenService:Create(v.Title,TweenInfo.new(.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),{TextTransparency = 0.4}):Play()
@@ -1203,7 +1228,6 @@ function OrionLib:MakeWindow(WindowConfig)
 					end
 
 					Dropdown.Value = Value
-					DropdownFrame.F.Selected.Text = Dropdown.Value
 
 					for _, v in pairs(Dropdown.Buttons) do
 						TweenService:Create(v,TweenInfo.new(.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),{BackgroundTransparency = 1}):Play()
@@ -1354,6 +1378,14 @@ function OrionLib:MakeWindow(WindowConfig)
 					end
 				end
 
+				function Bind:SetColor(Color)
+					BindFrame.BackgroundColor3 = Color
+				end
+
+				function Bind:SetTransparency(Transparency)
+					BindFrame.BackgroundTransparency = Transparency
+				end
+
 				Bind:Set(BindConfig.Default)
 				if BindConfig.Flag then				
 					OrionLib.Flags[BindConfig.Flag] = Bind
@@ -1366,6 +1398,8 @@ function OrionLib:MakeWindow(WindowConfig)
 				TextboxConfig.Default = TextboxConfig.Default or ""
 				TextboxConfig.TextDisappear = TextboxConfig.TextDisappear or false
 				TextboxConfig.Callback = TextboxConfig.Callback or function() end
+
+				local Textbox = {Value, Type = "Textbox", Name = TextboxConfig.Name}
 
 				local Click = SetProps(MakeElement("Button"), {
 					Size = UDim2.new(1, 0, 1, 0),
@@ -1419,6 +1453,18 @@ function OrionLib:MakeWindow(WindowConfig)
 					TextboxConfig.Callback(TextboxActual.Text)
 					if TextboxConfig.TextDisappear then TextboxActual.Text = "" end	
 				end)
+
+				function Textbox:Set(Text)
+					TextboxActual.Text = Text
+				end
+
+				function Textbox:SetColor(Color)
+					TextboxFrame.BackgroundColor3 = Color
+				end
+
+				function Textbox:SetTransparency(Transparency)
+					TextboxFrame.BackgroundTransparency = Transparency
+				end
 
 				TextboxActual.Text = TextboxConfig.Default
 
@@ -1607,6 +1653,14 @@ function OrionLib:MakeWindow(WindowConfig)
 					Colorpicker.Value = Value
 					ColorpickerBox.BackgroundColor3 = Colorpicker.Value
 					ColorpickerConfig.Callback(Colorpicker.Value)
+				end
+
+				function Colorpicker:SetColor(Color)
+					ColorpickerFrame.BackgroundColor3 = Color
+				end
+
+				function Colorpicker:SetTransparency(Transparency)
+					ColorpickerFrame.BackgroundTransparency = Transparency
 				end
 
 				Colorpicker:Set(Colorpicker.Value)
