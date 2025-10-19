@@ -829,6 +829,8 @@ function OrionLib:MakeWindow(WindowConfig)
 					ParagraphFrame.Size = UDim2.new(1, 0, 0, ParagraphFrame.Content.TextBounds.Y + 35)
 				end)
 
+				task.wait(.01)
+
 				ParagraphFrame.Content.Text = Content
 
 				local ParagraphFunction = {}
@@ -1725,5 +1727,4 @@ function OrionLib:Destroy()
 	Orion:Destroy()
 end
 
-		
 return OrionLib
