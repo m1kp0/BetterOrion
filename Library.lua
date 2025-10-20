@@ -42,15 +42,11 @@ local OrionLib = {
 		syn.protect_gui(Orion)
 		Orion.Parent = CoreGui
 	else
-		Orion.Parent = gethui() or CoreGui 
+		Orion.Parent = CoreGui 
 	end
 
 	function OrionLib:IsRunning()
-		if gethui then
-			return Orion.Parent == gethui()
-		else
-			return Orion.Parent == CoreGui
-		end
+		return Orion.Parent == CoreGui
 	end
 
 -- Local functions --
