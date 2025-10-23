@@ -54,6 +54,7 @@ local OrionLib = {
 		Orion.Parent = game.Players.LocalPlayer.PlayerGui 
 	end
 	Orion.ResetOnSpawn = false
+	Orion.DisplayOrder = 101
 
 	function OrionLib:IsRunning()
 		return Orion.Parent == game.Players.LocalPlayer.PlayerGui
