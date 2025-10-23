@@ -40,13 +40,17 @@ local OrionLib = {
 	Orion.Name = "Orion"
 	if syn then
 		syn.protect_gui(Orion)
-		Orion.Parent = CoreGui
+		Orion.Parent = game.CoreGui
 	else
-		Orion.Parent = CoreGui 
+		Orion.Parent = gethui() or game.CoreGui
 	end
 
 	function OrionLib:IsRunning()
-		return Orion.Parent == CoreGui
+		if gethui then
+			return Orion.Parent == gethui()
+		else
+			return Orion.Parent == game:GetService("CoreGui")
+		end
 	end
 
 -- Local functions --
