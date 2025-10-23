@@ -14,6 +14,7 @@ local CoreGui = game:GetService("CoreGui")
 
 local OrionLib = {
 	Elements = {},
+	UIElements = {},
 	ThemeObjects = {},
 	Connections = {},
 	Flags = {},
@@ -25,7 +26,15 @@ local OrionLib = {
 			Text = Color3.fromRGB(255, 255, 255),
 			TextDark = Color3.fromRGB(200, 200, 200),
          Elements = Color3.fromRGB(80, 80, 80),
-		}
+		},
+		MyTheme = {
+			Main = Color3.fromRGB(100, 100, 100),
+			Stroke = Color3.fromRGB(100, 100, 100),
+			Divider = Color3.fromRGB(50, 50, 50),
+			Text = Color3.fromRGB(255, 255, 255),
+			TextDark = Color3.fromRGB(200, 200, 200),
+         Elements = Color3.fromRGB(80, 80, 80),
+		},
 	},
 	SelectedTheme = "Default",
 	Folder = nil,
@@ -37,20 +46,16 @@ local OrionLib = {
 
 -- Core
 	local Orion = Instance.new("ScreenGui")
-	Orion.Name = "Orion"
+	Orion.Name = "BetterOrion"
 	if syn then
 		syn.protect_gui(Orion)
-		Orion.Parent = game.CoreGui
+		Orion.Parent = game.Players.LocalPlayer.PlayerGui
 	else
-		Orion.Parent = gethui() or game.CoreGui
+		Orion.Parent = game.Players.LocalPlayer.PlayerGui 
 	end
 
 	function OrionLib:IsRunning()
-		if gethui then
-			return Orion.Parent == gethui()
-		else
-			return Orion.Parent == game:GetService("CoreGui")
-		end
+		return Orion.Parent == game.Players.LocalPlayer.PlayerGui
 	end
 
 -- Local functions --
@@ -797,6 +802,7 @@ function OrionLib:MakeWindow(WindowConfig)
 				function LabelFunction:Set(ToChange)
 					LabelFrame.Content.Text = ToChange
 				end
+				table.insert(OrionLib.UIElements, LabelFunction)
 				return LabelFunction
 			end
 			function ElementFunction:AddParagraph(Text, Content)
@@ -837,6 +843,8 @@ function OrionLib:MakeWindow(WindowConfig)
 				function ParagraphFunction:Set(ToChange)
 					ParagraphFrame.Content.Text = ToChange
 				end
+
+				table.insert(OrionLib.UIElements, ParagraphFunction)
 				return ParagraphFunction
 			end    
 			function ElementFunction:AddButton(ButtonConfig)
@@ -864,18 +872,16 @@ function OrionLib:MakeWindow(WindowConfig)
 						Font = Enum.Font.GothamBold,
 						Name = "Content",
 						TextWrapped = true,
+						BackgroundTransparency = 1,
 					}), "Text"),
 					AddThemeObject(SetProps(MakeElement("Image", ButtonConfig.Icon), {
 						Size = UDim2.new(0, 20, 0, 20),
 						Position = UDim2.new(1, -30, 0, 7),
+						BackgroundTransparency = 1,
 					}), "TextDark"),
 					AddThemeObject(MakeElement("Stroke"), "Stroke"),
 					Click
 				}), "Elements")
-
-				function Button:Set(ButtonText)
-					ButtonFrame.Content.Text = ButtonText
-				end
 
 				function Button:SetColor(Color)
 					ButtonFrame.BackgroundColor3 = Color
@@ -883,6 +889,10 @@ function OrionLib:MakeWindow(WindowConfig)
 
 				function Button:SetTransparency(Transparency)
 					ButtonFrame.BackgroundTransparency = Transparency
+				end
+
+				function Button:Set(ButtonText)
+					ButtonFrame.Content.Text = ButtonText
 				end
 
 				AddConnection(Click.MouseEnter, function()
@@ -917,6 +927,8 @@ function OrionLib:MakeWindow(WindowConfig)
 				AddConnection(Click.MouseButton1Down, function()
 					TweenService:Create(ButtonFrame, TweenInfo.new(0.25, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {BackgroundColor3 = Color3.fromRGB(OrionLib.Themes[OrionLib.SelectedTheme].Elements.R * 255 + 6, OrionLib.Themes[OrionLib.SelectedTheme].Elements.G * 255 + 6, OrionLib.Themes[OrionLib.SelectedTheme].Elements.B * 255 + 6)}):Play()
 				end)
+
+				table.insert(OrionLib.UIElements, Button)
 
 				return Button
 			end    
@@ -1010,6 +1022,9 @@ function OrionLib:MakeWindow(WindowConfig)
 				if ToggleConfig.Flag then
 					OrionLib.Flags[ToggleConfig.Flag] = Toggle
 				end	
+
+				table.insert(OrionLib.UIElements, Toggle)
+
 				return Toggle
 			end  
 			function ElementFunction:AddSlider(SliderConfig)
@@ -1117,6 +1132,9 @@ function OrionLib:MakeWindow(WindowConfig)
 
 				Slider:Set(Slider.Value)
 				if SliderConfig.Flag then OrionLib.Flags[SliderConfig.Flag] = Slider end
+
+				table.insert(OrionLib.UIElements, Slider)
+
 				return Slider
 			end  
 			function ElementFunction:AddDropdown(DropdownConfig)
@@ -1264,6 +1282,8 @@ function OrionLib:MakeWindow(WindowConfig)
 				if DropdownConfig.Flag then				
 					OrionLib.Flags[DropdownConfig.Flag] = Dropdown
 				end
+			
+				table.insert(OrionLib.UIElements, Dropdown)
 				return Dropdown
 			end
 			function ElementFunction:AddBind(BindConfig)
@@ -1400,6 +1420,9 @@ function OrionLib:MakeWindow(WindowConfig)
 				if BindConfig.Flag then				
 					OrionLib.Flags[BindConfig.Flag] = Bind
 				end
+
+				table.insert(OrionLib.UIElements, Bind)
+
 				return Bind
 			end  
 			function ElementFunction:AddTextbox(TextboxConfig)
@@ -1494,6 +1517,8 @@ function OrionLib:MakeWindow(WindowConfig)
 				AddConnection(Click.MouseButton1Down, function()
 					TweenService:Create(TextboxFrame, TweenInfo.new(0.25, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {BackgroundColor3 = Color3.fromRGB(OrionLib.Themes[OrionLib.SelectedTheme].Elements.R * 255 + 6, OrionLib.Themes[OrionLib.SelectedTheme].Elements.G * 255 + 6, OrionLib.Themes[OrionLib.SelectedTheme].Elements.B * 255 + 6)}):Play()
 				end)
+
+				table.insert(OrionLib.UIElements, Textbox)
 			end 
 			function ElementFunction:AddColorpicker(ColorpickerConfig)
 				ColorpickerConfig = ColorpickerConfig or {}
@@ -1675,6 +1700,8 @@ function OrionLib:MakeWindow(WindowConfig)
 
 				Colorpicker:Set(Colorpicker.Value)
 				if ColorpickerConfig.Flag then OrionLib.Flags[ColorpickerConfig.Flag] = Colorpicker end
+
+				table.insert(OrionLib.UIElements, Colorpicker)
 				return Colorpicker
 			end  
 			return ElementFunction   
