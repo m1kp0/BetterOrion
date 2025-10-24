@@ -1,5 +1,5 @@
 for _, UI in ipairs(game.CoreGui:GetChildren()) do
-	if UI.Name == "Orion" then 
+	if UI.Name == "BetterOrion" then 
 		UI:Destroy() 
 	end
 end
@@ -27,14 +27,6 @@ local OrionLib = {
 			TextDark = Color3.fromRGB(200, 200, 200),
          Elements = Color3.fromRGB(80, 80, 80),
 		},
-		MyTheme = {
-			Main = Color3.fromRGB(100, 100, 100),
-			Stroke = Color3.fromRGB(100, 100, 100),
-			Divider = Color3.fromRGB(50, 50, 50),
-			Text = Color3.fromRGB(255, 255, 255),
-			TextDark = Color3.fromRGB(200, 200, 200),
-         Elements = Color3.fromRGB(80, 80, 80),
-		},
 	},
 	SelectedTheme = "Default",
 	Folder = nil,
@@ -49,15 +41,13 @@ local OrionLib = {
 	Orion.Name = "BetterOrion"
 	if syn then
 		syn.protect_gui(Orion)
-		Orion.Parent = game.Players.LocalPlayer.PlayerGui
+		Orion.Parent = game.CoreGui
 	else
-		Orion.Parent = game.Players.LocalPlayer.PlayerGui 
+		Orion.Parent = game.CoreGui
 	end
-	Orion.ResetOnSpawn = false
-	Orion.DisplayOrder = 101
 
 	function OrionLib:IsRunning()
-		return Orion.Parent == game.Players.LocalPlayer.PlayerGui
+		return Orion.Parent == game.CoreGui
 	end
 
 -- Local functions --
@@ -163,7 +153,8 @@ local OrionLib = {
 	CreateElement("Stroke", function(Color, Thickness)
 		local Stroke = Create("UIStroke", {
 			Color = Color or Color3.fromRGB(255, 255, 255),
-			Thickness = Thickness or 1
+			Thickness = Thickness or 1,
+			Name = "Stroke",
 		})
 		return Stroke
 	end)
@@ -277,7 +268,7 @@ local NotificationHolder = SetProps(SetChildren(MakeElement("TFrame"), {
 function OrionLib:MakeNotification(NotificationConfig)
 	spawn(function()
 		NotificationConfig.Name = NotificationConfig.Name or "Notification"
-		NotificationConfig.Content = NotificationConfig.Content or "Test"
+		NotificationConfig.Content = NotificationConfig.Content or "Content"
 		NotificationConfig.Image = NotificationConfig.Image or "rbxassetid://4384403532"
 		NotificationConfig.Time = NotificationConfig.Time or 15
 		NotificationConfig.Color = NotificationConfig.Color or Color3.fromRGB(100, 100, 100)
@@ -436,7 +427,8 @@ function OrionLib:MakeWindow(WindowConfig)
 			Size = UDim2.new(1, -30, 2, 0),
 			Position = UDim2.new(0, 25, 0, -24),
 			Font = Enum.Font.GothamBlack,
-			TextSize = 20
+			TextSize = 20,
+			Name = "WindowName",
 		}), "Text")
 
 		local WindowSubName = AddThemeObject(SetProps(MakeElement("Label", WindowConfig.SubName, 14), {
@@ -445,7 +437,8 @@ function OrionLib:MakeWindow(WindowConfig)
 			Font = Enum.Font.GothamSemibold,
 			TextSize = 14,
 			TextWrapped = true,
-			TextXAlignment = Enum.TextXAlignment.Center
+			TextXAlignment = Enum.TextXAlignment.Center,
+			Name = "WindowSubName",
 		}), "TextDark")
 
 		local WindowTopBarLine = AddThemeObject(SetProps(MakeElement("Frame"), {
@@ -472,6 +465,7 @@ function OrionLib:MakeWindow(WindowConfig)
 					Size = UDim2.new(0, 70, 0, 30),
 					Position = UDim2.new(1, -90, 0, 10),
 					BackgroundTransparency = 1,
+					Name = "ButtonsFrame",
 				}), {
 					AddThemeObject(MakeElement("Stroke"), "Stroke"),
 					AddThemeObject(SetProps(MakeElement("Frame"), {
@@ -485,6 +479,7 @@ function OrionLib:MakeWindow(WindowConfig)
 				AddThemeObject(SetChildren(SetProps(MakeElement("TFrame", Color3.fromRGB(255, 255, 255), 0, 7), {
 					Size = UDim2.new(1, 0, 1, 0),
 					Position = UDim2.new(0, 0, 0, 20),
+					Name = "WindowNames",
 				}), {
 					WindowSubName,
 				}), "Elements"),
@@ -666,8 +661,31 @@ function OrionLib:MakeWindow(WindowConfig)
 			MainWindow.BackgroundColor3 = Color
 		end
 
-		function TabFunction:GetColor()
-			return MainWindow.BackgroundColor3
+		function TabFunction:SetStrokeColor(Color)
+			MainWindow.TopBar.ButtonsFrame.Stroke.Color = Color
+		end
+
+		function TabFunction:SetTextColor(Color)
+			local SubNameColor = Color3.fromRGB(Color.R * 180, Color.G * 180, Color.B * 180)
+
+			MainWindow.TopBar.WindowName.TextColor3 = Color
+			MainWindow.TopBar.WindowNames.WindowSubName.TextColor3 = SubNameColor
+
+			for i, Tab in next, TabHolder:GetChildren() do
+				if Tab:IsA("TextButton") then
+					Tab.Title.TextColor3 = Color
+				end
+			end
+
+			for i, Container in next, MainWindow:GetChildren() do
+				if Container.Name == "ItemContainerLeft" or Container.Name == "ItemContainerRight" then
+					local frame = Container:FindFirstChildOfClass("Frame")
+					local label = frame and frame:FindFirstChildOfClass("TextLabel")
+					if frame and label then
+						label.TextColor3 = Color
+					end
+				end
+			end
 		end
 
 		function TabFunction:SetTransparency(Transparency)
@@ -683,6 +701,10 @@ function OrionLib:MakeWindow(WindowConfig)
 			if OrionLib.Flags[Flag] ~= nil then
 				OrionLib.Flags[Flag]:Destroy()
 			end
+		end
+
+		function TabFunction:SetThemeColor(Theme, Element, Color)
+			OrionLib.Themes[Theme][Element] = Color
 		end
 		
 	function TabFunction:MakeTab(TabConfig)
@@ -801,9 +823,27 @@ function OrionLib:MakeWindow(WindowConfig)
 				end)
 
 				local LabelFunction = {}
+
 				function LabelFunction:Set(ToChange)
 					LabelFrame.Content.Text = ToChange
 				end
+
+				function LabelFunction:SetColor(Color)
+					LabelFrame.BackgroundColor3 = Color
+				end
+
+				function LabelFunction:SetStrokeColor(Color)
+					LabelFrame.Stroke.Color = Color
+				end
+
+				function LabelFunction:SetTextColor(Color)
+					LabelFrame.Content.TextColor3 = Color
+				end
+
+				function LabelFunction:SetTransparency(Transparency)
+					LabelFrame.BackgroundTransparency = Transparency
+				end
+
 				table.insert(OrionLib.UIElements, LabelFunction)
 				return LabelFunction
 			end
@@ -844,6 +884,22 @@ function OrionLib:MakeWindow(WindowConfig)
 				local ParagraphFunction = {}
 				function ParagraphFunction:Set(ToChange)
 					ParagraphFrame.Content.Text = ToChange
+				end
+
+				function ParagraphFunction:SetColor(Color)
+					ParagraphFrame.BackgroundColor3 = Color
+				end
+
+				function ParagraphFunction:SetStrokeColor(Color)
+					ParagraphFrame.Stroke.Color = Color
+				end
+
+				function ParagraphFunction:SetTextColor(Color)
+					ParagraphFrame.Content.TextColor3 = Color
+				end
+
+				function ParagraphFunction:SetTransparency(Transparency)
+					ParagraphFrame.BackgroundTransparency = Transparency
 				end
 
 				table.insert(OrionLib.UIElements, ParagraphFunction)
@@ -887,6 +943,14 @@ function OrionLib:MakeWindow(WindowConfig)
 
 				function Button:SetColor(Color)
 					ButtonFrame.BackgroundColor3 = Color
+				end
+
+				function Button:SetStrokeColor(Color)
+					ButtonFrame.Stroke.Color = Color
+				end
+
+				function Button:SetTextColor(Color)
+					ButtonFrame.Content.TextColor3 = Color
 				end
 
 				function Button:SetTransparency(Transparency)
@@ -998,6 +1062,14 @@ function OrionLib:MakeWindow(WindowConfig)
 					ToggleFrame.BackgroundColor3 = Color
 				end
 
+				function Toggle:SetTextColor(Color)
+					ToggleFrame.Content.TextColor3 = Color
+				end
+
+				function Toggle:SetStrokeColor(Color)
+					ToggleFrame.Stroke.Color = Color
+				end
+
 				function Toggle:SetTransparency(Transparency)
 					ToggleFrame.BackgroundTransparency = Transparency
 				end
@@ -1065,7 +1137,8 @@ function OrionLib:MakeWindow(WindowConfig)
 					BackgroundTransparency = 0.9
 				}), {
 					SetProps(MakeElement("Stroke"), {
-						Color = SliderConfig.Color
+						Color = SliderConfig.Color,
+						Name = "Stroke",
 					}),
 					AddThemeObject(SetProps(MakeElement("Label", "value", 13), {
 						Size = UDim2.new(1, -12, 0, 14),
@@ -1126,6 +1199,18 @@ function OrionLib:MakeWindow(WindowConfig)
 				
 				function Slider:SetColor(Color)
 					SliderFrame.BackgroundColor3 = Color
+					SliderDrag.BackgroundColor3 = Color3.fromRGB(Color.R * 150, Color.G * 150, Color.B * 150)
+				end
+
+				function Slider:SetStrokeColor(Color)
+					SliderBar.BackgroundColor3 = Color
+					SliderBar.Stroke.Color = Color
+					SliderFrame.Stroke.Color = Color
+				end
+
+				function Slider:SetTextColor(Color)
+					SliderFrame.Content.TextColor3 = Color
+					SliderDrag.Value.TextColor3 = Color
 				end
 
 				function Slider:SetTransparency(Transparency)
@@ -1268,6 +1353,29 @@ function OrionLib:MakeWindow(WindowConfig)
 					return DropdownConfig.Callback(Dropdown.Value)
 				end
 
+				function Dropdown:SetColor(Color)
+					DropdownFrame.BackgroundColor3 = Color
+
+					for _, Btn in pairs(Dropdown.Buttons) do
+						Btn.BackgroundColor3 = Color
+					end
+				end
+
+				function Dropdown:SetTextColor(Color)
+					DropdownFrame.F.Content.TextColor3 = Color
+					for _, Btn in pairs(Dropdown.Buttons) do
+						Btn.Title.TextColor3 = Color
+					end
+				end
+
+				function Dropdown:SetStrokeColor(Color)
+					DropdownFrame.Stroke.Color = Color
+				end	
+
+				function Dropdown:SetTransparency(Transparency)
+					DropdownFrame.BackgroundTransparency = Transparency
+				end
+
 				AddConnection(Click.MouseButton1Click, function()
 					Dropdown.Toggled = not Dropdown.Toggled
 					DropdownFrame.F.Line.Visible = Dropdown.Toggled
@@ -1281,6 +1389,7 @@ function OrionLib:MakeWindow(WindowConfig)
 
 				Dropdown:Refresh(Dropdown.Options, false)
 				Dropdown:Set(Dropdown.Value)
+
 				if DropdownConfig.Flag then				
 					OrionLib.Flags[DropdownConfig.Flag] = Dropdown
 				end
@@ -1414,6 +1523,14 @@ function OrionLib:MakeWindow(WindowConfig)
 					BindFrame.BackgroundColor3 = Color
 				end
 
+				function Bind:SetStrokeColor(Color)
+					BindFrame.Stroke.Color = Color
+				end
+
+				function Bind:SetTextColor(Color)
+					BindFrame.Content.TextColor3 = Color
+				end
+
 				function Bind:SetTransparency(Transparency)
 					BindFrame.BackgroundTransparency = Transparency
 				end
@@ -1495,6 +1612,15 @@ function OrionLib:MakeWindow(WindowConfig)
 
 				function Textbox:SetColor(Color)
 					TextboxFrame.BackgroundColor3 = Color
+				end
+
+				function Textbox:SetStrokeColor(Color)
+					TextContainer.Stroke.Color = Color
+					TextboxFrame.Stroke.Color = Color
+				end
+
+				function Textbox:SetTextColor(Color)
+					TextboxFrame.Content.TextColor3 = Color
 				end
 
 				function Textbox:SetTransparency(Transparency)
@@ -1694,6 +1820,14 @@ function OrionLib:MakeWindow(WindowConfig)
 
 				function Colorpicker:SetColor(Color)
 					ColorpickerFrame.BackgroundColor3 = Color
+				end
+
+				function Colorpicker:SetStrokeColor(Color)
+					ColorpickerFrame.Stroke.Color = Color
+				end
+
+				function Colorpicker:SetTextColor(Color)
+					ColorpickerFrame.F.Content.TextColor3 = Color
 				end
 
 				function Colorpicker:SetTransparency(Transparency)
