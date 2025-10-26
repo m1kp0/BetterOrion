@@ -274,6 +274,7 @@ function OrionLib:MakeNotification(NotificationConfig)
 		NotificationConfig.Image = NotificationConfig.Image or "rbxassetid://4384403532"
 		NotificationConfig.Time = NotificationConfig.Time or 15
 		NotificationConfig.Color = NotificationConfig.Color or Color3.fromRGB(100, 100, 100)
+		NotificationConfig.TextColor = NotificationConfig.TextColor or Color3.fromRGB(255, 255, 255)
 
 		local NotificationParent = SetProps(MakeElement("TFrame"), {
 			Size = UDim2.new(1, 0, 0, 0),
@@ -288,11 +289,10 @@ function OrionLib:MakeNotification(NotificationConfig)
 			BackgroundTransparency = 0.4,
 			AutomaticSize = Enum.AutomaticSize.Y
 		}), {
-			MakeElement("Stroke", Color3.fromRGB(0, 80, 80), 1.2),
 			MakeElement("Padding", 12, 12, 12, 12),
-			SetProps(MakeElement("Image", NotificationConfig.Image), {
+			SetProps(MakeElement("Image", GetLucideIcon(NotificationConfig.Image)), {
 				Size = UDim2.new(0, 20, 0, 20),
-				ImageColor3 = Color3.fromRGB(255, 255, 255),
+				ImageColor3 = NotificationConfig.TextColor,
 				Name = "Icon",
 				BackgroundTransparency = 1,
 			}),
@@ -302,6 +302,7 @@ function OrionLib:MakeNotification(NotificationConfig)
 				Font = Enum.Font.GothamBold,
 				Name = "Title",
 				BackgroundTransparency = 1,
+				TextColor3 = NotificationConfig.TextColor,
 			}),
 			SetProps(MakeElement("Label", NotificationConfig.Content, 14), {
 				Size = UDim2.new(1, 0, 0, 0),
@@ -309,7 +310,7 @@ function OrionLib:MakeNotification(NotificationConfig)
 				Font = Enum.Font.GothamSemibold,
 				Name = "Content",
 				AutomaticSize = Enum.AutomaticSize.Y,
-				TextColor3 = Color3.fromRGB(255, 255, 255),
+				TextColor3 = NotificationConfig.TextColor,
 				TextWrapped = true,
 				BackgroundTransparency = 1,
 			})
@@ -321,7 +322,6 @@ function OrionLib:MakeNotification(NotificationConfig)
 		TweenService:Create(NotificationFrame.Icon, TweenInfo.new(0.4, Enum.EasingStyle.Quint), {ImageTransparency = 1}):Play()
 		TweenService:Create(NotificationFrame, TweenInfo.new(0.8, Enum.EasingStyle.Quint), {BackgroundTransparency = 0.6}):Play()
 		wait(0.3)
-		TweenService:Create(NotificationFrame.Stroke, TweenInfo.new(0.6, Enum.EasingStyle.Quint), {Transparency = 0.9}):Play()
 		TweenService:Create(NotificationFrame.Title, TweenInfo.new(0.6, Enum.EasingStyle.Quint), {TextTransparency = 0.4}):Play()
 		TweenService:Create(NotificationFrame.Content, TweenInfo.new(0.6, Enum.EasingStyle.Quint), {TextTransparency = 0.5}):Play()
 		wait(0.05)
@@ -498,7 +498,7 @@ function OrionLib:MakeWindow(WindowConfig)
 	-- Local window functions
 		if WindowConfig.ShowIcon then
 			WindowName.Position = UDim2.new(0, 50, 0, -24)
-			local WindowIcon = SetProps(MakeElement("Image", WindowConfig.Icon), {Size = UDim2.new(0, 20, 0, 20), Position = UDim2.new(0, 25, 0, 15)})
+			local WindowIcon = SetProps(MakeElement("Image", WindowConfig.Icon), {Size = UDim2.new(0, 20, 0, 20), Position = UDim2.new(0, 25, 0, 15), Name = "WindowIcon"})
 			WindowIcon.Parent = MainWindow.TopBar
 		end	
 
@@ -569,7 +569,9 @@ function OrionLib:MakeWindow(WindowConfig)
 			OrionLib:MakeNotification({
 				Name = "Interface Hidden",
 				Content = "Tap "..tostring(WindowConfig.ToggleUIKey):split(".")[3].." to reopen the interface",
-				Time = 5
+				Time = 5,
+				Color = game.CoreGui.BetterOrion:GetChildren()[2].BackgroundColor3,
+				TextColor = game.CoreGui.BetterOrion:GetChildren()[2].TopBar.WindowName.TextColor3,
 			})
 			WindowConfig.CloseCallback()
 		end)
@@ -657,6 +659,15 @@ function OrionLib:MakeWindow(WindowConfig)
 			
 		function TabFunction:SetSize(Size)
 			MainWindow.Size = Size
+		end
+
+		function TabFunction:SetIconColor(Color)
+			MainWindow.TopBar.WindowIcon.ImageColor3 = Color
+			for i, Tab in next, TabHolder:GetChildren() do
+				if Tab:IsA("TextButton") then
+					Tab.Ico.ImageColor3 = Color
+				end	
+			end
 		end
 
 		function TabFunction:SetColor(Color)
@@ -802,6 +813,7 @@ function OrionLib:MakeWindow(WindowConfig)
 
 		local function GetElements(ItemParent)
 			local ElementFunction = {}
+
 			function ElementFunction:AddLabel(Text)
 				local LabelFrame = AddThemeObject(SetChildren(SetProps(MakeElement("RoundFrame", Color3.fromRGB(255, 255, 255), 0, 5), {
 					Size = UDim2.new(1, 0, 0, 30),
