@@ -256,7 +256,7 @@ local OrionLib = {
 local NotificationHolder = SetProps(SetChildren(MakeElement("TFrame"), {
 	SetProps(MakeElement("List"), {
 		HorizontalAlignment = Enum.HorizontalAlignment.Center,
-		SortOrder = Enum.SortOrder.LayoutOrder,
+		SortOrder = Enum.SortOrder.Name,
 		VerticalAlignment = Enum.VerticalAlignment.Bottom,
 		Padding = UDim.new(0, 5)
 	})
@@ -277,12 +277,12 @@ function OrionLib:MakeNotification(NotificationConfig)
 		NotificationConfig.TextColor = NotificationConfig.TextColor or Color3.fromRGB(255, 255, 255)
 
 		local NotificationParent = SetProps(MakeElement("TFrame"), {
-			Size = UDim2.new(1, 0, 0, 0),
+			Size = UDim2.new(0.8, 0, 0, 0),
 			AutomaticSize = Enum.AutomaticSize.Y,
 			Parent = NotificationHolder
 		})
 
-		local NotificationFrame = SetChildren(SetProps(MakeElement("RoundFrame", NotificationConfig.Color, 0, 10), {
+		local NotificationFrame = SetChildren(SetProps(MakeElement("RoundFrame", NotificationConfig.Color, 0, 8), {
 			Parent = NotificationParent, 
 			Size = UDim2.new(1, 0, 0, 0),
 			Position = UDim2.new(1, -55, 0, 0),
@@ -300,6 +300,7 @@ function OrionLib:MakeNotification(NotificationConfig)
 				Size = UDim2.new(1, -30, 0, 20),
 				Position = UDim2.new(0, 30, 0, 0),
 				Font = Enum.Font.GothamBold,
+				TextSize = 15,
 				Name = "Title",
 				BackgroundTransparency = 1,
 				TextColor3 = NotificationConfig.TextColor,
@@ -308,6 +309,7 @@ function OrionLib:MakeNotification(NotificationConfig)
 				Size = UDim2.new(1, 0, 0, 0),
 				Position = UDim2.new(0, 0, 0, 25),
 				Font = Enum.Font.GothamSemibold,
+				TextSize = 13,
 				Name = "Content",
 				AutomaticSize = Enum.AutomaticSize.Y,
 				TextColor3 = NotificationConfig.TextColor,
@@ -316,7 +318,7 @@ function OrionLib:MakeNotification(NotificationConfig)
 			})
 		})
 
-		TweenService:Create(NotificationFrame, TweenInfo.new(0.5, Enum.EasingStyle.Quint), {Position = UDim2.new(0, 0, 0, 0)}):Play()
+		TweenService:Create(NotificationFrame, TweenInfo.new(0.5, Enum.EasingStyle.Quint), {Position = UDim2.new(0, 40, 0, 0)}):Play()
 
 		wait(NotificationConfig.Time - 0.88)
 		TweenService:Create(NotificationFrame.Icon, TweenInfo.new(0.4, Enum.EasingStyle.Quint), {ImageTransparency = 1}):Play()
@@ -326,9 +328,9 @@ function OrionLib:MakeNotification(NotificationConfig)
 		TweenService:Create(NotificationFrame.Content, TweenInfo.new(0.6, Enum.EasingStyle.Quint), {TextTransparency = 0.5}):Play()
 		wait(0.05)
 
-		NotificationFrame:TweenPosition(UDim2.new(1, 20, 0, 0),'In','Quint',0.8,true)
-		wait(1.35)
-		NotificationFrame:Destroy()
+		NotificationFrame:TweenPosition(UDim2.new(1, 60, 0, 0),'In','Quint',0.8,true)
+		wait(0.85)
+		NotificationParent:Destroy()
 	end)
 end    
 
@@ -569,9 +571,10 @@ function OrionLib:MakeWindow(WindowConfig)
 			OrionLib:MakeNotification({
 				Name = "Interface Hidden",
 				Content = "Tap "..tostring(WindowConfig.ToggleUIKey):split(".")[3].." to reopen the interface",
-				Time = 5,
+				Time = 3,
 				Color = game.CoreGui.BetterOrion:GetChildren()[2].BackgroundColor3,
 				TextColor = game.CoreGui.BetterOrion:GetChildren()[2].TopBar.WindowName.TextColor3,
+				Image = "activity"
 			})
 			WindowConfig.CloseCallback()
 		end)
