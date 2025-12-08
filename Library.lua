@@ -1674,7 +1674,7 @@ function OrionLib:MakeWindow(WindowConfig)
 				ColorpickerConfig.Save = ColorpickerConfig.Save or false
 
 				local ColorH, ColorS, ColorV = 1, 1, 1
-				local Colorpicker = {Value = ColorpickerConfig.Default, Toggled = false, Type = "Colorpicker", Save = ColorpickerConfig.Save}
+				local Colorpicker = {Value = ColorpickerConfig.Default, Toggled = false, Type = "Colorpicker", Save = ColorpickerConfig.Save, Name = ColorpickerConfig.Name}
 
 				local ColorSelection = Create("ImageLabel", {
 					Size = UDim2.new(0, 18, 0, 18),
