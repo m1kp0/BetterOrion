@@ -1126,6 +1126,7 @@ function OrionLib:MakeWindow(WindowConfig)
 				SliderConfig.Increment = SliderConfig.Increment or 1
 				SliderConfig.Default = SliderConfig.Default or 50
 				SliderConfig.Callback = SliderConfig.Callback or function() end
+				SliderConfig.InputEndedCallback = SliderConfig.InputEndedCallback or function() end
 				SliderConfig.ValueName = SliderConfig.ValueName or ""
 				SliderConfig.Color = SliderConfig.Color or Color3.fromRGB(50, 50, 50)
 				SliderConfig.Flag = SliderConfig.Flag or nil
@@ -1196,6 +1197,7 @@ function OrionLib:MakeWindow(WindowConfig)
 				SliderBar.InputEnded:Connect(function(Input) 
 					if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then 
 						Dragging = false 
+						SliderConfig.InputEndedCallback(self.Value)
 					end 
 				end)
 
