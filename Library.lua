@@ -1197,6 +1197,7 @@ function OrionLib:MakeWindow(WindowConfig)
 				SliderBar.InputEnded:Connect(function(Input) 
 					if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then 
 						Dragging = false 
+						local SizeScale = math.clamp((Input.Position.X - SliderBar.AbsolutePosition.X) / SliderBar.AbsoluteSize.X, 0, 1)
 						SliderConfig.InputEndedCallback(SliderConfig.Min + ((SliderConfig.Max - SliderConfig.Min) * SizeScale))
 					end 
 				end)
