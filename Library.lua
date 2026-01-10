@@ -42,7 +42,7 @@ local OrionLib = {
 	local Orion = Instance.new("ScreenGui")
 	Orion.Name = "BetterOrion"
 	if syn then
-		syn.protect_gui(Orion)
+		pcall(function() syn.protect_gui(Orion) end)
 		Orion.Parent = game.CoreGui
 	else
 		Orion.Parent = game.CoreGui
