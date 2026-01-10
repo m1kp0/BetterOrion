@@ -1,4 +1,3 @@
--- Fluent thanks
 -- https://github.com/dawid-scripts/Fluent/blob/master/src/Icons.lua
 
 return {
