@@ -1075,6 +1075,10 @@ function OrionLib:MakeWindow(WindowConfig)
 					ToggleConfig.Callback(Toggle.Value)
 				end    
 
+				function Toggle:SetName(Text)
+					ToggleFrame.Content.Text = Text
+				end
+
 				function Toggle:SetColor(Color)
 					ToggleFrame.BackgroundColor3 = Color
 				end
