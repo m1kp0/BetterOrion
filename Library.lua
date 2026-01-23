@@ -20,14 +20,14 @@ local OrionLib = {
 	Flags = {},
 	Themes = {
 		Default = {
-			Main = Color3.fromRGB(100, 100, 100),
+			Main = Color3.fromRGB(20, 20, 20),
 			Stroke = Color3.fromRGB(100, 100, 100),
 			Divider = Color3.fromRGB(50, 50, 50),
 			Text = Color3.fromRGB(255, 255, 255),
 			TextDark = Color3.fromRGB(200, 200, 200),
-         Elements = Color3.fromRGB(80, 80, 80),
+            Elements = Color3.fromRGB(80, 80, 80),
 			MainTransparency = 0.35,
-			ElementsTransparency = 0.5,
+			ElementsTransparency = 0.3,
 		},
 	},
 	SelectedTheme = "Default",
@@ -52,7 +52,7 @@ local OrionLib = {
 		return Orion.Parent == game.CoreGui
 	end
 
--- Local functions --
+-- Local functions
 	local function GetOrionIcon(IconName)
 		if Icons[IconName] ~= nil then return Icons[IconName] else return nil end
 	end   
@@ -335,7 +335,7 @@ function OrionLib:MakeNotification(NotificationConfig)
 end    
 
 function OrionLib:MakeWindow(WindowConfig)
-	-- Config --
+	-- Config
 		local FirstTab = true
 		local Minimized = false
 		local Loaded = false
@@ -362,6 +362,7 @@ function OrionLib:MakeWindow(WindowConfig)
 		local TabHolder = AddThemeObject(SetChildren(SetProps(MakeElement("ScrollFrame", Color3.fromRGB(255, 255, 255)), {
 			Size = UDim2.fromScale(1, 1),
 			BackgroundTransparency = 1,
+            Name = "TabHolder",
 		}), {
 			MakeElement("List"),
 			MakeElement("Padding", 8, 0, 0, 8)
@@ -399,15 +400,17 @@ function OrionLib:MakeWindow(WindowConfig)
 		})
 
 		local ResizePoint = SetProps(MakeElement("RoundFrame", Color3.fromRGB(20, 20, 20), 0, 10), {
-			Size = UDim2.new(0, 12, 0, 30),
-			Position = UDim2.new(1, -12, 1, -30),
-			BackgroundTransparency = 0.9
+			Size = UDim2.new(0, 8, 0, 40),
+			Position = UDim2.new(1, -8, 1, -40),
+			BackgroundTransparency = 0.9,
+            Name = "DragMainWindowResize"
 		})
 
 		local WindowStuff = AddThemeObject(SetChildren(SetProps(MakeElement("RoundFrame", Color3.fromRGB(255, 255, 255), 0, 10), {
-			Size = UDim2.new(0.2, 0, 1, -50),
+			Size = UDim2.new(0, 120, 1, -50),
 			Position = UDim2.new(0, 0, 0, 50),
 			BackgroundTransparency = 1,
+            Name = "WindowStuff",
 		}), {
 			AddThemeObject(SetProps(MakeElement("Frame"), {
 				Size = UDim2.new(1, 0, 0, 10),
@@ -426,6 +429,14 @@ function OrionLib:MakeWindow(WindowConfig)
 			}), "Stroke"), 
 			TabHolder,
 		}), "Elements")
+
+        local ResizeTabHolderPoint = SetProps(MakeElement("RoundFrame", Color3.fromRGB(20, 20, 20), 0, 10), {
+			Size = UDim2.new(0, 5, 0, 200),
+			Position = UDim2.new(1, -5, 0.5, -100),
+			BackgroundTransparency = 0.8,
+            Parent = TabHolder.Parent,
+            Name = "DragTabHolderResize",
+		})
 
 		local WindowName = AddThemeObject(SetProps(MakeElement("Label", WindowConfig.Name, 14), {
 			Size = UDim2.new(1, -30, 2, 0),
@@ -457,6 +468,7 @@ function OrionLib:MakeWindow(WindowConfig)
 			Size = WindowConfig.Size,
 			ClipsDescendants = true,
 			BackgroundTransparency = WindowConfig.Transparency,
+            Name = "MainWindow",
 		}), {
 			SetChildren(SetProps(MakeElement("TFrame"), {
 				Size = UDim2.new(1, 0, 0, 50),
@@ -561,8 +573,40 @@ function OrionLib:MakeWindow(WindowConfig)
 			end)
 		end
 
+        local function AddResizingTabHolderFunctionality(ResizePoint, Main)
+			pcall(function()  
+				local Dragging, DragInput, MousePos, FrameSize = false
+				ResizePoint.InputBegan:Connect(function(Input)
+					if Input.UserInputType == Enum.UserInputType.MouseButton1  or Input.UserInputType == Enum.UserInputType.Touch then
+						Dragging = true
+						MousePos = Input.Position
+						FrameSize = Main.Size
+
+						Input.Changed:Connect(function()
+							if Input.UserInputState == Enum.UserInputState.End then Dragging = false end
+						end)
+					end
+				end)
+				ResizePoint.InputChanged:Connect(function(Input)
+					if Input.UserInputType == Enum.UserInputType.MouseMovement or Input.UserInputType == Enum.UserInputType.Touch then DragInput = Input end
+				end)
+				UserInputService.InputChanged:Connect(function(Input)
+					if Input == DragInput and Dragging then
+						local Delta = Input.Position - MousePos
+						local size = UDim2.new(
+							0, math.clamp(FrameSize.X.Offset + Delta.X, 10, (MainWindow.Size.X.Offset / 2) + 50),
+							FrameSize.Y.Scale, FrameSize.Y.Offset
+						)
+						TweenService:Create(Main, TweenInfo.new(0.2, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {Size = size}):Play()
+						WindowConfig.Size = size
+					end
+				end)
+			end)
+		end
+
 		AddDraggingFunctionality(DragPoint, MainWindow)
 		AddResizingFunctionality(ResizePoint, MainWindow)
+        AddResizingTabHolderFunctionality(ResizeTabHolderPoint, TabHolder.Parent)
 
 	-- Local window connections
 		AddConnection(CloseBtn.MouseButton1Up, function()
@@ -734,7 +778,7 @@ function OrionLib:MakeWindow(WindowConfig)
 		local TabFrame = SetChildren(SetProps(MakeElement("Button"), {
 			Size = UDim2.new(1, 0, 0, 30),
 			Parent = TabHolder,
-			TextWrapped = true,
+			TextWrapped = false,
 			Name = Tab,
 		}), {
 			AddThemeObject(SetProps(MakeElement("Image", GetLucideIcon(TabConfig.Icon)), {
@@ -749,14 +793,14 @@ function OrionLib:MakeWindow(WindowConfig)
 				Position = UDim2.new(0, 35, 0, 0),
 				Font = Enum.Font.GothamSemibold,
 				TextTransparency = 0.4,
-				TextWrapped = true,
+				TextWrapped = false,
 				Name = "Title"
 			}), "Text")
 		})
 
 		local ContainerLeft = AddThemeObject(SetChildren(SetProps(MakeElement("ScrollFrame", Color3.fromRGB(255, 255, 255)), {
-			Size = UDim2.new(0.4, 0, 0.95, -50),
-			Position = UDim2.new(0.19, 0, 0, 50),
+			Size = UDim2.new(0.5, -40, 0.95, -50),
+			Position = UDim2.new(0, 95, 0, 50),
 			Parent = MainWindow,
 			Visible = false,
 			Name = "ItemContainerLeft"
@@ -766,8 +810,8 @@ function OrionLib:MakeWindow(WindowConfig)
 		}), "Divider")
 
 		local ContainerRight = AddThemeObject(SetChildren(SetProps(MakeElement("ScrollFrame", Color3.fromRGB(255, 255, 255)), {
-			Size = UDim2.new(0.4, 0, 0.95, -50),
-			Position = UDim2.new(0.59, 0, 0, 50),
+			Size = UDim2.new(0.5, -40, 0.95, -50),
+			Position = UDim2.new(0.5, 40, 0, 50),
 			Parent = MainWindow,
 			Visible = false,
 			Name = "ItemContainerRight"
@@ -791,7 +835,7 @@ function OrionLib:MakeWindow(WindowConfig)
 			TabFrame.Title.TextTransparency = 0
 			TabFrame.Title.Font = Enum.Font.GothamBlack
 			ContainerLeft.Visible = true
-         ContainerRight.Visible = true
+            ContainerRight.Visible = true
 		end    
 
 		AddConnection(TabFrame.MouseButton1Click, function()
@@ -811,8 +855,37 @@ function OrionLib:MakeWindow(WindowConfig)
 			TweenService:Create(TabFrame.Title, TweenInfo.new(0.25, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {TextTransparency = 0}):Play()
 			TabFrame.Title.Font = Enum.Font.GothamBlack
 			ContainerLeft.Visible = true   
-         ContainerRight.Visible = true
+            ContainerRight.Visible = true
 		end)
+
+        do
+            local width = (MainWindow.AbsoluteSize.X - TabHolder.Parent.AbsoluteSize.X + 15) / 2
+            ContainerLeft.Size = UDim2.new(0, width, 0.95, -50)
+            ContainerRight.Size = UDim2.new(0, width, 0.95, -50)
+            ContainerLeft.Position = UDim2.new(0, TabHolder.Parent.AbsoluteSize.X - 5, 0, 50)
+            ContainerRight.Position = UDim2.new(0, TabHolder.Parent.AbsoluteSize.X + width - 15, 0, 50)
+        end
+
+        local x = TabHolder.Parent.Size.X.Offset
+        AddConnection(TabHolder.Parent:GetPropertyChangedSignal("AbsoluteSize"), function()
+            if x ~= TabHolder.Parent.Size.X.Offset then
+                local width = (MainWindow.AbsoluteSize.X - TabHolder.Parent.AbsoluteSize.X + 15) / 2
+                ContainerLeft.Size = UDim2.new(0, width, 0.95, -50)
+                ContainerRight.Size = UDim2.new(0, width, 0.95, -50)
+                ContainerLeft.Position = UDim2.new(0, TabHolder.Parent.AbsoluteSize.X - 5, 0, 50)
+                ContainerRight.Position = UDim2.new(0, TabHolder.Parent.AbsoluteSize.X + width - 15, 0, 50)
+
+                x = TabHolder.Parent.Size.X.Offset
+            end
+        end)
+
+        AddConnection(MainWindow:GetPropertyChangedSignal("AbsoluteSize"), function()
+            local width = (MainWindow.AbsoluteSize.X - TabHolder.Parent.AbsoluteSize.X + 15) / 2
+            ContainerLeft.Size = UDim2.new(0, width, 0.95, -50)
+            ContainerRight.Size = UDim2.new(0, width, 0.95, -50)
+            ContainerLeft.Position = UDim2.new(0, TabHolder.Parent.AbsoluteSize.X - 5, 0, 50)
+            ContainerRight.Position = UDim2.new(0, TabHolder.Parent.AbsoluteSize.X + width - 15, 0, 50)
+        end)
 
 		local function GetElements(ItemParent)
 			local ElementFunction = {}
