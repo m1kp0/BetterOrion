@@ -1095,9 +1095,11 @@ function OrionLib:MakeWindow(WindowConfig)
 				ToggleConfig.Callback = ToggleConfig.Callback or function() end
 				ToggleConfig.Color = ToggleConfig.Color or Color3.fromRGB(50, 50, 50)
 				ToggleConfig.Flag = ToggleConfig.Flag or nil
-				ToggleConfig.Save = ToggleConfig.Save or false
+				ToggleConfig.Binded = ToggleConfig.Binded or false
+				ToggleConfig.DefaultBind = ToggleConfig.DefaultBind or ""
+				ToggleConfig.Mode = ToggleConfig.Mode or "Right"
 
-				local Toggle = {Value = ToggleConfig.Default, Save = ToggleConfig.Save, Name = ToggleConfig.Name, Type = "Toggle"}
+				local Toggle = {Value = ToggleConfig.Default, Save = ToggleConfig.Save, Name = ToggleConfig.Name, Type = "Toggle", Binding = false, BindValue = ""}
 
 				local Click = SetProps(MakeElement("Button"), {
 					Size = UDim2.fromScale(1, 1)
@@ -1107,7 +1109,7 @@ function OrionLib:MakeWindow(WindowConfig)
 					Size = UDim2.new(0, 24, 0, 24),
 					Position = UDim2.new(1, -24, 0.5, 0),
 					AnchorPoint = Vector2.new(0.5, 0.5),
-               BackgroundTransparency = WindowConfig.ElementsTransparency,
+					BackgroundTransparency = WindowConfig.ElementsTransparency,
 				}), {
 					SetProps(MakeElement("Stroke"), {
 						Color = ToggleConfig.Color,
@@ -1123,6 +1125,68 @@ function OrionLib:MakeWindow(WindowConfig)
 					}),
 				})
 
+				local BindBox
+				local ClickBind
+				if ToggleConfig.Binded then
+					ClickBind = SetProps(MakeElement("Button"), {
+						Size = UDim2.fromScale(1, 1)
+					})
+					ClickBind.ZIndex = 2
+
+					BindBox = AddThemeObject(SetChildren(SetProps(MakeElement("RoundFrame", ToggleConfig.Color, 0, 4), {
+						Size = UDim2.new(0, 24, 0, 24),
+						Position = UDim2.new(1, -42, 0.5, 0),
+						AnchorPoint = Vector2.new(1, 0.5),
+						BackgroundTransparency = WindowConfig.ElementsTransparency,
+						BackgroundColor3 = ToggleConfig.Color,
+					}), {
+						AddThemeObject(MakeElement("Stroke"), "Stroke"),
+						AddThemeObject(SetProps(MakeElement("Label", ToggleConfig.DefaultBind, 14), {
+							Size = UDim2.new(1, 0, 1, 0),
+							Font = Enum.Font.GothamBold,
+							TextXAlignment = Enum.TextXAlignment.Center,
+							Name = "Value",
+						}), "Text"),
+						ClickBind
+					}), "Main")
+
+					AddConnection(ClickBind.InputEnded, function(Input)
+						if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then
+							if Toggle.Binding then return end
+							Toggle.Binding = true
+							BindBox.Value.Text = ""
+						end
+					end)
+					
+					AddConnection(UserInputService.InputBegan, function(Input)
+						if UserInputService:GetFocusedTextBox() then return end
+						if (Input.KeyCode.Name == Toggle.BindValue or Input.UserInputType.Name == Toggle.BindValue) and not Toggle.Binding then
+							Toggle:Set(not Toggle.Value)
+						elseif Toggle.Binding then
+							local Key
+							pcall(function() if not CheckKey(BlacklistedKeys, Input.KeyCode) then Key = Input.KeyCode end end)
+							pcall(function() if CheckKey(WhitelistedMouse, Input.UserInputType) and not Key then Key = Input.UserInputType end end)
+							if Input.KeyCode == Enum.KeyCode.Backspace then
+								Toggle:SetBind("")
+								return
+							end
+							Key = Key or Toggle.BindValue
+							Toggle:SetBind(Key)
+						end
+					end)
+
+					AddConnection(BindBox.Value:GetPropertyChangedSignal("Text"), function()
+						TweenService:Create(BindBox, TweenInfo.new(0.25, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {Size = UDim2.new(0, BindBox.Value.TextBounds.X + 16, 0, 24)}):Play()
+					end)
+
+					function Toggle:SetBind(Key)
+						Toggle.Binding = false
+						Toggle.BindValue = Key or Toggle.BindValue
+						Toggle.BindValue = Toggle.BindValue.Name or Toggle.BindValue
+						BindBox.Value.Text = Toggle.BindValue
+					end
+				end
+
 				local ToggleFrame = AddThemeObject(SetChildren(SetProps(MakeElement("RoundFrame", Color3.fromRGB(255, 255, 255), 0, 5), {
 					Size = UDim2.new(1, 0, 0, 38),
 					Parent = ItemParent,
@@ -1137,9 +1201,10 @@ function OrionLib:MakeWindow(WindowConfig)
 					}), "Text"),
 					AddThemeObject(MakeElement("Stroke"), "Stroke"),
 					ToggleBox,
+					BindBox,
 					Click
 				}), "Elements")
-
+				
 				function Toggle:Set(Value)
 					Toggle.Value = Value
 					TweenService:Create(ToggleBox, TweenInfo.new(0.3, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {BackgroundColor3 = Toggle.Value and ToggleConfig.Color or OrionLib.Themes.Default.Divider}):Play()
@@ -1496,7 +1561,7 @@ function OrionLib:MakeWindow(WindowConfig)
 			end
 			function ElementFunction:AddBind(BindConfig)
 				BindConfig.Name = BindConfig.Name or "Bind"
-				BindConfig.Default = BindConfig.Default or Enum.KeyCode.Unknown
+				BindConfig.Default = BindConfig.Default or ""
 				BindConfig.Hold = BindConfig.Hold or false
 				BindConfig.Callback = BindConfig.Callback or function() end
 				BindConfig.Flag = BindConfig.Flag or nil
