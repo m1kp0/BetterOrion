@@ -13,7 +13,7 @@
 		SubName = "v0.0.1 Example", 
 		SubNameSide = "Center",
 		
-		IntroEnabled = true, 
+		IntroEnabled = false, 
 		IntroIcon = "accessibility", 
 		IntroText = "BetterOrion,\nWelcome!", 
 		
@@ -59,38 +59,33 @@
 
 	Elm.Sect.SomeSection:AddButton({
 		Name = "Button",
-		DoubleTap = true,
 		Callback = function()
 			print("pressed double tap")
 		end
 	})
 
 	Elm.Sect.SomeSection2:AddToggle({
-		Name = "Toggle 2",
+		Name = "Binded toggle",
 		Default = false,
-		Flag = "SomeToggle2",
+		Flag = "SomeBindedToggle",
+		Binded = true,
+		DefaultBind = "",
 		Callback = function(bool)
 			print(bool)
 		end
 	})
 
-	Elm.Sect.SomeSection2:AddSlider({
-		Name = "Slider 2",
-		Default = 123,
-		Min = 0,
-		Max = 500,
-		Increment = 2,
-		ValueName = "Speed",
-		Flag = "SomeSlider2",
-		Callback = function(value)
-			print(value)
+	Elm.Sect.SomeSection2:AddButton({
+		Name = "Double-tap button",
+		DoubleTap = true,
+		Callback = function()
+			print("pressed single tap")
 		end
 	})
 
-	Elm.Sect.SomeSection2:AddButton({
-		Name = "Button 2",
-		DoubleTap = false,
+	Elm.Sect.SomeSection2:AddBind({
+		Name = "Bind",
 		Callback = function()
-			print("pressed single tap")
+			print("Bind pressed")
 		end
 	})
