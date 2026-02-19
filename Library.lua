@@ -1062,22 +1062,20 @@ function OrionLib:MakeWindow(WindowConfig)
 				AddConnection(Click.MouseButton1Up, function()
 					TweenService:Create(ButtonFrame, TweenInfo.new(0.25, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {BackgroundColor3 = Color3.fromRGB(OrionLib.Themes[OrionLib.SelectedTheme].Elements.R * 255 + 3, OrionLib.Themes[OrionLib.SelectedTheme].Elements.G * 255 + 3, OrionLib.Themes[OrionLib.SelectedTheme].Elements.B * 255 + 3)}):Play()
 					Tap += 1
-					spawn(function()
-						if Tap == 2 and ButtonConfig.DoubleTap then 
-							ButtonConfig.Callback()
-						elseif Tap == 1 and ButtonConfig.DoubleTap then 
-							ButtonFrame.Content.Text = "Are you sure?"
-							task.wait(ButtonConfig.TapDelay)
-							if Tap == 1 then 
-								Tap = 0
-								ButtonFrame.Content.Text = OldButtonName
-							end
-						elseif not ButtonConfig.DoubleTap then
-							ButtonConfig.Callback()
+					if Tap == 2 and ButtonConfig.DoubleTap then 
+						ButtonConfig.Callback()
+					elseif Tap == 1 and ButtonConfig.DoubleTap then 
+						ButtonFrame.Content.Text = "Are you sure?"
+						task.wait(ButtonConfig.TapDelay)
+						if Tap == 1 then 
+							Tap = 0
+							ButtonFrame.Content.Text = OldButtonName
 						end
-						Tap = 0
-						ButtonFrame.Content.Text = OldButtonName
-					end)
+					elseif not ButtonConfig.DoubleTap then
+						ButtonConfig.Callback()
+					end
+					Tap = 0
+					ButtonFrame.Content.Text = OldButtonName
 				end)
 
 				AddConnection(Click.MouseButton1Down, function()
@@ -1099,7 +1097,7 @@ function OrionLib:MakeWindow(WindowConfig)
 				ToggleConfig.DefaultBind = ToggleConfig.DefaultBind or ""
 				ToggleConfig.Mode = ToggleConfig.Mode or "Right"
 
-				local Toggle = {Value = ToggleConfig.Default, Save = ToggleConfig.Save, Name = ToggleConfig.Name, Type = "Toggle", Binding = false, BindValue = ""}
+				local Toggle = {Value = ToggleConfig.Default, Name = ToggleConfig.Name, Type = "Toggle", Binding = false, BindValue = ""}
 
 				local Click = SetProps(MakeElement("Button"), {
 					Size = UDim2.fromScale(1, 1)
@@ -1129,18 +1127,21 @@ function OrionLib:MakeWindow(WindowConfig)
 				local ClickBind
 				if ToggleConfig.Binded then
 					ClickBind = SetProps(MakeElement("Button"), {
-						Size = UDim2.fromScale(1, 1)
+						Size = UDim2.fromScale(1, 1),
+						ZIndex = 2
 					})
-					ClickBind.ZIndex = 2
 
-					BindBox = AddThemeObject(SetChildren(SetProps(MakeElement("RoundFrame", ToggleConfig.Color, 0, 4), {
+					BindBox = SetChildren(SetProps(MakeElement("RoundFrame", ToggleConfig.Color, 0, 4), {
 						Size = UDim2.new(0, 24, 0, 24),
 						Position = UDim2.new(1, -42, 0.5, 0),
 						AnchorPoint = Vector2.new(1, 0.5),
 						BackgroundTransparency = WindowConfig.ElementsTransparency,
-						BackgroundColor3 = ToggleConfig.Color,
 					}), {
-						AddThemeObject(MakeElement("Stroke"), "Stroke"),
+						SetProps(MakeElement("Stroke"),{
+							Color = Color3.fromRGB(100, 100, 100),
+							Transparency = 0.5,
+							Name = "Stroke"
+						}),
 						AddThemeObject(SetProps(MakeElement("Label", ToggleConfig.DefaultBind, 14), {
 							Size = UDim2.new(1, 0, 1, 0),
 							Font = Enum.Font.GothamBold,
@@ -1148,7 +1149,7 @@ function OrionLib:MakeWindow(WindowConfig)
 							Name = "Value",
 						}), "Text"),
 						ClickBind
-					}), "Main")
+					})
 
 					AddConnection(ClickBind.InputEnded, function(Input)
 						if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then
@@ -1272,9 +1273,8 @@ function OrionLib:MakeWindow(WindowConfig)
 				SliderConfig.ValueName = SliderConfig.ValueName or ""
 				SliderConfig.Color = SliderConfig.Color or Color3.fromRGB(50, 50, 50)
 				SliderConfig.Flag = SliderConfig.Flag or nil
-				SliderConfig.Save = SliderConfig.Save or false
 
-				local Slider = {Value = SliderConfig.Default, Save = SliderConfig.Save, Name = SliderConfig.Name, Type = "Slider"}
+				local Slider = {Value = SliderConfig.Default, Name = SliderConfig.Name, Type = "Slider"}
 				local Dragging = false
 
 				local SliderDrag = SetChildren(SetProps(MakeElement("RoundFrame", SliderConfig.Color, 0, 5), {
@@ -1340,7 +1340,7 @@ function OrionLib:MakeWindow(WindowConfig)
 					if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then 
 						Dragging = false 
 						local SizeScale = math.clamp((Input.Position.X - SliderBar.AbsolutePosition.X) / SliderBar.AbsoluteSize.X, 0, 1)
-						SliderConfig.InputEndedCallback(SliderConfig.Min + ((SliderConfig.Max - SliderConfig.Min) * SizeScale))
+						SliderConfig.InputEndedCallback(Round(SliderConfig.Min + ((SliderConfig.Max - SliderConfig.Min) * SizeScale), SliderConfig.Increment))
 					end 
 				end)
 
@@ -1393,9 +1393,8 @@ function OrionLib:MakeWindow(WindowConfig)
 				DropdownConfig.Default = DropdownConfig.Default or ""
 				DropdownConfig.Callback = DropdownConfig.Callback or function() end
 				DropdownConfig.Flag = DropdownConfig.Flag or nil
-				DropdownConfig.Save = DropdownConfig.Save or false
 
-				local Dropdown = {Value = DropdownConfig.Default, Options = DropdownConfig.Options, Buttons = {}, Toggled = false, Type = "Dropdown", Save = DropdownConfig.Save, Name = DropdownConfig.Name}
+				local Dropdown = {Value = DropdownConfig.Default, Options = DropdownConfig.Options, Buttons = {}, Toggled = false, Type = "Dropdown", Name = DropdownConfig.Name}
 				local MaxElements = 5
 
 				if not table.find(Dropdown.Options, Dropdown.Value) then
@@ -1565,34 +1564,47 @@ function OrionLib:MakeWindow(WindowConfig)
 				BindConfig.Hold = BindConfig.Hold or false
 				BindConfig.Callback = BindConfig.Callback or function() end
 				BindConfig.Flag = BindConfig.Flag or nil
-				BindConfig.Save = BindConfig.Save or false
 				BindConfig.UIBind = BindConfig.UIBind or false
+				BindConfig.Button = BindConfig.Button or false
+				BindConfig.ButtonIcon = BindConfig.ButtonIcon or "rbxassetid://3944703587"
+				BindConfig.DoubleTap = BindConfig.DoubleTap or false
+				BindConfig.TapDelay = BindConfig.TapDelay or 0.5
+				BindConfig.Color = BindConfig.Color or Color3.fromRGB(50, 50, 50)
 
 				if BindConfig.UIBind then
 					WindowConfig.ToggleUIKey = BindConfig.Default
 				end
 
-				local Bind = {Value, Binding = false, Type = "Bind", Save = BindConfig.Save, Name = BindConfig.Name}
 				local Holding = false
+				local Bind, Tap, OldBindName = {Value, Binding = false, Type = "Bind", Name = BindConfig.Name}, 0, BindConfig.Name
 
 				local Click = SetProps(MakeElement("Button"), {
 					Size = UDim2.new(1, 0, 1, 0)
 				})
+				local ClickBind = SetProps(MakeElement("Button"), {
+					Size = UDim2.new(1, 0, 1, 0),
+					ZIndex = 2
+				})
 
-				local BindBox = AddThemeObject(SetChildren(SetProps(MakeElement("RoundFrame", Color3.fromRGB(255, 255, 255), 0, 4), {
+				local BindBox = SetChildren(SetProps(MakeElement("RoundFrame", BindConfig.Color, 0, 4), {
 					Size = UDim2.new(0, 24, 0, 24),
 					Position = UDim2.new(1, -12, 0.5, 0),
 					AnchorPoint = Vector2.new(1, 0.5),
 					BackgroundTransparency = WindowConfig.ElementsTransparency,
 				}), {
-					AddThemeObject(MakeElement("Stroke"), "Stroke"),
+					SetProps(MakeElement("Stroke"),{
+						Color = Color3.fromRGB(100, 100, 100),
+						Transparency = 0.5,
+						Name = "Stroke"
+					}),
 					AddThemeObject(SetProps(MakeElement("Label", BindConfig.Name, 14), {
 						Size = UDim2.new(1, 0, 1, 0),
 						Font = Enum.Font.GothamBold,
 						TextXAlignment = Enum.TextXAlignment.Center,
 						Name = "Value",
-					}), "Text")
-				}), "Main")
+					}), "Text"),
+					ClickBind
+				})
 
 				local BindFrame = AddThemeObject(SetChildren(SetProps(MakeElement("RoundFrame", Color3.fromRGB(255, 255, 255), 0, 5), {
 					Size = UDim2.new(1, 0, 0, 38),
@@ -1606,16 +1618,28 @@ function OrionLib:MakeWindow(WindowConfig)
 						Name = "Content",
 						TextWrapped = true,
 					}), "Text"),
+					AddThemeObject(SetProps(MakeElement("Image", BindConfig.ButtonIcon), {
+						Size = UDim2.new(0, 20, 0, 20),
+						Position = UDim2.new(1, -30, 0, 9),
+						BackgroundTransparency = 1,
+						Visible = false,
+						Name = "Image",
+					}), "TextDark"),
 					AddThemeObject(MakeElement("Stroke"), "Stroke"),
 					BindBox,
 					Click
 				}), "Elements")
 
+				if BindConfig.Button then
+					BindFrame.Image.Visible = true
+					BindBox.Position = UDim2.new(1, -35, 0.5, 0)
+				end	
+
 				AddConnection(BindBox.Value:GetPropertyChangedSignal("Text"), function()
 					TweenService:Create(BindBox, TweenInfo.new(0.25, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {Size = UDim2.new(0, BindBox.Value.TextBounds.X + 16, 0, 24)}):Play()
 				end)
 
-				AddConnection(Click.InputEnded, function(Input)
+				AddConnection(ClickBind.InputEnded, function(Input)
 					if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then
 						if Bind.Binding then return end
 						Bind.Binding = true
@@ -1626,12 +1650,31 @@ function OrionLib:MakeWindow(WindowConfig)
 				AddConnection(UserInputService.InputBegan, function(Input)
 					if UserInputService:GetFocusedTextBox() then return end
 					if (Input.KeyCode.Name == Bind.Value or Input.UserInputType.Name == Bind.Value) and not Bind.Binding then
-						if BindConfig.Hold then
-							Holding = true
-							BindConfig.Callback(Holding)
-						else
-							BindConfig.Callback()
+						Tap += 1
+						if Tap == 2 and BindConfig.DoubleTap then 
+							if BindConfig.Hold then
+								Holding = true
+								BindConfig.Callback(Holding)
+							else
+								BindConfig.Callback()
+							end
+						elseif Tap == 1 and BindConfig.DoubleTap then 
+							BindFrame.Content.Text = "Are you sure?"
+							task.wait(BindConfig.TapDelay)
+							if Tap == 1 then 
+								Tap = 0
+								BindFrame.Content.Text = OldBindName
+							end
+						elseif not BindConfig.DoubleTap then
+							if BindConfig.Hold then
+								Holding = true
+								BindConfig.Callback(Holding)
+							else
+								BindConfig.Callback()
+							end
 						end
+						Tap = 0
+						BindFrame.Content.Text = OldBindName
 					elseif Bind.Binding then
 						local Key
 						pcall(function() if not CheckKey(BlacklistedKeys, Input.KeyCode) then Key = Input.KeyCode end end)
@@ -1643,6 +1686,25 @@ function OrionLib:MakeWindow(WindowConfig)
 						Key = Key or Bind.Value
 						Bind:Set(Key)
 					end
+				end)
+
+				AddConnection(Click.MouseButton1Up, function()
+					TweenService:Create(BindFrame, TweenInfo.new(0.25, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {BackgroundColor3 = Color3.fromRGB(OrionLib.Themes[OrionLib.SelectedTheme].Elements.R * 255 + 3, OrionLib.Themes[OrionLib.SelectedTheme].Elements.G * 255 + 3, OrionLib.Themes[OrionLib.SelectedTheme].Elements.B * 255 + 3)}):Play()
+					Tap += 1
+					if Tap == 2 and BindConfig.DoubleTap then 
+						BindConfig.Callback()
+					elseif Tap == 1 and BindConfig.DoubleTap then 
+						BindFrame.Content.Text = "Are you sure?"
+						task.wait(BindConfig.TapDelay)
+						if Tap == 1 then 
+							Tap = 0
+							BindFrame.Content.Text = OldBindName
+						end
+					elseif not BindConfig.DoubleTap then
+						BindConfig.Callback()
+					end
+					Tap = 0
+					BindFrame.Content.Text = OldBindName
 				end)
 
 				AddConnection(UserInputService.InputEnded, function(Input)
@@ -1816,10 +1878,9 @@ function OrionLib:MakeWindow(WindowConfig)
 				ColorpickerConfig.Default = ColorpickerConfig.Default or Color3.fromRGB(255,255,255)
 				ColorpickerConfig.Callback = ColorpickerConfig.Callback or function() end
 				ColorpickerConfig.Flag = ColorpickerConfig.Flag or nil
-				ColorpickerConfig.Save = ColorpickerConfig.Save or false
 
 				local ColorH, ColorS, ColorV = 1, 1, 1
-				local Colorpicker = {Value = ColorpickerConfig.Default, Toggled = false, Type = "Colorpicker", Save = ColorpickerConfig.Save, Name = ColorpickerConfig.Name}
+				local Colorpicker = {Value = ColorpickerConfig.Default, Toggled = false, Type = "Colorpicker", Name = ColorpickerConfig.Name}
 
 				local ColorSelection = Create("ImageLabel", {
 					Size = UDim2.new(0, 18, 0, 18),
