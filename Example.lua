@@ -38,12 +38,12 @@
 	Elm.Sect.SomeSection:AddToggle({
 		Name = "Toggle",
 		Default = false,
-		Flag = "SomeToggle",
 		Callback = function(bool)
 			print(bool)
 		end
 	})
 
+	local lastprint = tick()
 	Elm.Sect.SomeSection:AddSlider({
 		Name = "Slider",
 		Default = 123,
@@ -51,23 +51,34 @@
 		Max = 500,
 		Increment = 2,
 		ValueName = "Speed",
-		Flag = "SomeSlider",
 		Callback = function(value)
-			print(value)
+			if tick() - lastprint >= 0.1 then
+				print(value)
+				lastprint = tick()
+			end
+		end,
+		InputEndedCallback = function(value)
+			print("Input ended at:", value)
 		end
 	})
 
 	Elm.Sect.SomeSection:AddButton({
 		Name = "Button",
 		Callback = function()
-			print("pressed double tap")
+			print("pressed single tap")
+		end
+	})
+
+	Elm.Sect.SomeSection:AddBind({
+		Name = "Bind",
+		Callback = function()
+			print("Bind pressed")
 		end
 	})
 
 	Elm.Sect.SomeSection2:AddToggle({
 		Name = "Binded toggle",
 		Default = false,
-		Flag = "SomeBindedToggle",
 		Binded = true,
 		DefaultBind = "",
 		Callback = function(bool)
@@ -79,13 +90,23 @@
 		Name = "Double-tap button",
 		DoubleTap = true,
 		Callback = function()
-			print("pressed single tap")
+			print("pressed double tap")
 		end
 	})
 
 	Elm.Sect.SomeSection2:AddBind({
-		Name = "Bind",
+		Name = "Button bind",
+		Button = true,
 		Callback = function()
-			print("Bind pressed")
+			print("Button bind pressed")
+		end
+	})
+
+	Elm.Sect.SomeSection2:AddBind({
+		Name = "Double-tap button bind",
+		Button = true,
+		DoubleTap = true,
+		Callback = function()
+			print("Double tap button bind pressed")
 		end
 	})
