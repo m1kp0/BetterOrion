@@ -620,7 +620,6 @@ function OrionLib:MakeWindow(WindowConfig)
 				TextColor = game.CoreGui.BetterOrion:GetChildren()[2].TopBar.WindowName.TextColor3,
 				Image = "activity"
 			})
-			WindowConfig.CloseCallback()
 		end)
 
 		AddConnection(UserInputService.InputBegan, function(Input)
