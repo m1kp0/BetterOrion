@@ -30,6 +30,10 @@ local OrionLib = {
 			ElementsTransparency = 0.3,
 		},
 	},
+	NotificationSettings = {
+		Enabled = true,
+		Printing = true
+	},
 	SelectedTheme = "Default",
 	Folder = nil,
 }
@@ -272,7 +276,6 @@ local OrionLib = {
 			SortOrder = Enum.SortOrder.Name,
 			VerticalAlignment = Enum.VerticalAlignment.Bottom,
 			Padding = UDim.new(0, 5),
-			
 		})
 	}), {
 		Position = UDim2.new(1, -25, 1, -25),
@@ -284,13 +287,43 @@ local OrionLib = {
 
 	function OrionLib:MakeNotification(NotificationConfig)
 		spawn(function()
-			NotificationConfig.Name = NotificationConfig.Name or "Notification"
-			NotificationConfig.Content = NotificationConfig.Content or "Content"
+			NotificationConfig.Name = NotificationConfig.Name or "Notification Title"
+			NotificationConfig.Content = NotificationConfig.Content or "Notification Content"
 			NotificationConfig.Image = NotificationConfig.Image or "rbxassetid://4384403532"
 			NotificationConfig.Time = NotificationConfig.Time or 15
 			NotificationConfig.Color = NotificationConfig.Color or Color3.fromRGB(100, 100, 100)
 			NotificationConfig.TextColor = NotificationConfig.TextColor or Color3.fromRGB(255, 255, 255)
+			NotificationConfig.Sound = NotificationConfig.Sound or ""
+			NotificationConfig.SoundVolume = NotificationConfig.SoundVolume or 1
 
+			if NotificationConfig.Sound ~= "" then
+				local sound = Instance.new("Sound")
+				sound.SoundId = NotificationConfig.Sound
+				sound.Parent = game:GetService("Players").LocalPlayer:FindFirstChild("Backpack")
+				sound.Volume = NotificationConfig.SoundVolume
+				sound:Play()
+			end
+			
+			if OrionLib.NotificationSettings.Printing then
+				local Contents = {}
+				local SendContent = ""
+
+				if string.find(NotificationConfig.Content, "\n") then
+					for _, line in NotificationConfig.Content:split("\n") do
+						table.insert(Contents, "\n  "..line)
+					end
+					SendContent = table.concat(Contents)
+					print(string.format("\n%s\n%s:%s\n%s\n", string.rep("-", 49), NotificationConfig.Name, SendContent, string.rep("-", 49)))
+				else
+					SendContent = NotificationConfig.Content
+					print(string.format("\n%s\n%s:\n  %s\n%s\n", string.rep("-", 49), NotificationConfig.Name, SendContent, string.rep("-", 49)))
+				end
+			end
+			
+			if OrionLib.NotificationSettings.Enabled == false then 
+				return 
+			end
+			
 			local NotificationParent = SetProps(MakeElement("TFrame"), {
 				Size = UDim2.new(0.9, 0, 0, 0),
 				AutomaticSize = Enum.AutomaticSize.Y,
@@ -322,7 +355,7 @@ local OrionLib = {
 					TextColor3 = NotificationConfig.TextColor,
 				}),
 				SetProps(MakeElement("Label", NotificationConfig.Content, 14), {
-					Size = UDim2.new(1, -30, 0, 6),
+					Size = NotificationConfig.Content == "" and UDim2.new(0, 0, 0, 0) or UDim2.new(1, -30, 0, 6),
 					Position = UDim2.new(0, 30, 0, 20),
 					Font = Enum.Font.GothamSemibold,
 					TextSize = 13,
@@ -331,6 +364,7 @@ local OrionLib = {
 					TextColor3 = NotificationConfig.TextColor,
 					TextWrapped = true,
 					BackgroundTransparency = 1,
+					Visible = NotificationConfig.Content ~= "" and true or false,
 				})
 			})
 			local TimerBar = SetProps(MakeElement("RoundFrame", Color3.new(255, 255, 255), 0, 8), {
@@ -344,7 +378,7 @@ local OrionLib = {
 				TweenService:Create(TimerBar, TweenInfo.new(NotificationConfig.Time - 1, Enum.EasingStyle.Linear), {Size = UDim2.new(0, 0, 0, 2)}):Play()
 				wait(NotificationConfig.Time - 1)
 				TweenService:Create(TimerBar, TweenInfo.new(0.2, Enum.EasingStyle.Linear), {Size = UDim2.new(0, 0, 0, 0)}):Play()
-				TweenService:Create(TimerBar, TweenInfo.new(0.2, Enum.EasingStyle.Linear), {Position = UDim2.new(0, 30, 0, 30)}):Play()
+				TweenService:Create(TimerBar, TweenInfo.new(0.2, Enum.EasingStyle.Linear), {Position = UDim2.new(0, 30, 0, 0)}):Play()
 				wait(0.3)
 				TimerBar.Visible = false
 			end)
@@ -362,6 +396,11 @@ local OrionLib = {
 			NotificationParent:Destroy()
 		end)
 	end    
+
+	function OrionLib:SetNotifyingState(Config)
+		OrionLib.NotificationSettings.Enabled = Config.Enabled
+		OrionLib.NotificationSettings.Printing = Config.Printing
+	end
 
 function OrionLib:MakeWindow(WindowConfig)
 	-- Config
