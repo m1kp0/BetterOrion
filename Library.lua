@@ -163,7 +163,7 @@ local OrionLib = {
 		end
 	end
 
--- Create Elements -- 
+-- Create Elements
 	CreateElement("Corner", function(Scale, Offset)
 		local Corner = Create("UICorner", {CornerRadius = UDim.new(Scale or 0, Offset or 10)})
 		return Corner
