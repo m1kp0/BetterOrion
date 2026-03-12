@@ -163,7 +163,7 @@ local OrionLib = {
 		end
 	end
 
--- Create Elements
+-- Create Elements -- 
 	CreateElement("Corner", function(Scale, Offset)
 		local Corner = Create("UICorner", {CornerRadius = UDim.new(Scale or 0, Offset or 10)})
 		return Corner
@@ -425,7 +425,7 @@ function OrionLib:MakeWindow(WindowConfig)
 		WindowConfig.Transparency = WindowConfig.Transparency or 0
 		WindowConfig.ElementsTransparency = WindowConfig.ElementsTransparency or 0
 		WindowConfig.ToggleUIKey = WindowConfig.ToggleUIKey or Enum.KeyCode.Tab
-		WindowConfig.SearchBar = WindowConfig.SearchBar or false
+		WindowConfig.SearchBar = WindowConfig.SearchBar or true
 
 	-- Elements
 		local TabHolder = AddThemeObject(SetChildren(SetProps(MakeElement("ScrollFrame", Color3.fromRGB(255, 255, 255)), {
