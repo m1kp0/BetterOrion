@@ -287,12 +287,13 @@ local OrionLib = {
 
 	function OrionLib:MakeNotification(NotificationConfig)
 		spawn(function()
+			NotificationConfig = NotificationConfig or {}
 			NotificationConfig.Name = NotificationConfig.Name or "Notification Title"
 			NotificationConfig.Content = NotificationConfig.Content or "Notification Content"
-			NotificationConfig.Image = NotificationConfig.Image or "rbxassetid://4384403532"
-			NotificationConfig.Time = NotificationConfig.Time or 15
-			NotificationConfig.Color = NotificationConfig.Color or Color3.fromRGB(100, 100, 100)
-			NotificationConfig.TextColor = NotificationConfig.TextColor or Color3.fromRGB(255, 255, 255)
+			NotificationConfig.Image = NotificationConfig.Image or "server"
+			NotificationConfig.Time = NotificationConfig.Time or 5
+			NotificationConfig.Color = NotificationConfig.Color or game.CoreGui.BetterOrion.MainWindow.BackgroundColor3
+			NotificationConfig.TextColor = NotificationConfig.TextColor or game.CoreGui.BetterOrion.MainWindow.TopBar.WindowName.TextColor3
 			NotificationConfig.Sound = NotificationConfig.Sound or ""
 			NotificationConfig.SoundVolume = NotificationConfig.SoundVolume or 1
 
@@ -386,7 +387,7 @@ local OrionLib = {
 
 			wait(NotificationConfig.Time - 0.88)
 			TweenService:Create(NotificationFrame, TweenInfo.new(3, Enum.EasingStyle.Quint), {BackgroundTransparency = 1}):Play()
-			TweenService:Create(NotificationFrame.Icon, TweenInfo.new(3, Enum.EasingStyle.Quint), {ImageTransparency = 1}):Play()
+			if NotificationFrame.Icon then TweenService:Create(NotificationFrame.Icon, TweenInfo.new(3, Enum.EasingStyle.Quint), {ImageTransparency = 1}):Play() end
 			TweenService:Create(NotificationFrame.Title, TweenInfo.new(3, Enum.EasingStyle.Quint), {TextTransparency = 1}):Play()
 			TweenService:Create(NotificationFrame.Content, TweenInfo.new(3, Enum.EasingStyle.Quint), {TextTransparency = 1}):Play()
 			wait(0.05)
@@ -422,8 +423,8 @@ function OrionLib:MakeWindow(WindowConfig)
 		WindowConfig.ShowIcon = WindowConfig.ShowIcon or false
 		WindowConfig.Icon = GetLucideIcon(WindowConfig.Icon) or ""
 		WindowConfig.IntroIcon = GetLucideIcon(WindowConfig.IntroIcon) or ""
-		WindowConfig.Transparency = WindowConfig.Transparency or 0
-		WindowConfig.ElementsTransparency = WindowConfig.ElementsTransparency or 0
+		WindowConfig.Transparency = WindowConfig.Transparency or 0.35
+		WindowConfig.ElementsTransparency = WindowConfig.ElementsTransparency or 0.5
 		WindowConfig.ToggleUIKey = WindowConfig.ToggleUIKey or Enum.KeyCode.Tab
 		WindowConfig.SearchBar = WindowConfig.SearchBar or true
 
@@ -1118,6 +1119,8 @@ function OrionLib:MakeWindow(WindowConfig)
 			local ElementFunction = {}
 
 			function ElementFunction:AddLabel(Text)
+				Text = Text or "Label"
+
 				local LabelFrame = AddThemeObject(SetChildren(SetProps(MakeElement("RoundFrame", Color3.fromRGB(255, 255, 255), 0, 5), {
 					Size = UDim2.new(1, 0, 0, 30),
 					BackgroundTransparency = WindowConfig.ElementsTransparency,
@@ -1989,6 +1992,7 @@ function OrionLib:MakeWindow(WindowConfig)
 				return Dropdown
 			end
 			function ElementFunction:AddBind(BindConfig)
+				BindConfig = BindConfig or {}
 				BindConfig.Name = BindConfig.Name or "Bind"
 				BindConfig.Default = BindConfig.Default or ""
 				BindConfig.Hold = BindConfig.Hold or false
