@@ -11,8 +11,7 @@
 	Elm.Window = BetterOrion:MakeWindow({ 
 		Name = "BetterOrion",
 		SubName = "v0.0.1 Example", 
-		SubNameSide = "Center",
-		
+
 		IntroEnabled = false, 
 		IntroIcon = "accessibility", 
 		IntroText = "BetterOrion,\nWelcome!", 
