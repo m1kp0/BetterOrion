@@ -2344,7 +2344,7 @@ function OrionLib:MakeWindow(WindowConfig)
 				ColorpickerConfig.InputEndedCallback = ColorpickerConfig.InputEndedCallback or function() end
 				ColorpickerConfig.Flag = ColorpickerConfig.Flag or nil
 
-				local ColorH, ColorS, ColorV = 1, 1, 1
+				local ColorH, ColorS, ColorV = Color3.toHSV(ColorpickerConfig.Default)
 				local Colorpicker = {Value = ColorpickerConfig.Default, Toggled = false, Type = "Colorpicker", Name = ColorpickerConfig.Name}
 
 				local ColorSelection = Create("ImageLabel", {
@@ -2355,7 +2355,7 @@ function OrionLib:MakeWindow(WindowConfig)
 					BackgroundTransparency = 1,
 					Image = "http://www.roblox.com/asset/?id=4805639000"
 				})
-
+				
 				local HueSelection = Create("ImageLabel", {
 					Size = UDim2.new(0, 18, 0, 18),
 					Position = UDim2.new(0.5, 0, 1 - select(1, Color3.toHSV(Colorpicker.Value))),
@@ -2451,15 +2451,15 @@ function OrionLib:MakeWindow(WindowConfig)
 				end)
 
 				local function UpdateColorPicker()
+					ColorH = ColorH >= 0 and ColorH or 0
 					ColorpickerBox.BackgroundColor3 = Color3.fromHSV(ColorH, ColorS, ColorV)
 					Color.BackgroundColor3 = Color3.fromHSV(ColorH, 1, 1)
 					Colorpicker:Set(ColorpickerBox.BackgroundColor3)
 					ColorpickerConfig.Callback(ColorpickerBox.BackgroundColor3)
 				end
 
-				ColorH = 0.49 - (math.clamp(HueSelection.AbsolutePosition.Y - Hue.AbsolutePosition.Y, 0, Hue.AbsoluteSize.Y) / Hue.AbsoluteSize.Y)
-				ColorS = (math.clamp(ColorSelection.AbsolutePosition.X - Color.AbsolutePosition.X, 0, 0.49) / Color.AbsoluteSize.X)
-				ColorV = 0.49 - (math.clamp(ColorSelection.AbsolutePosition.Y - Color.AbsolutePosition.Y, 0, Color.AbsoluteSize.Y) / Color.AbsoluteSize.Y)
+				HueSelection.Position = UDim2.new(0.5, 0, 1 - ColorH, 0)
+				ColorSelection.Position = UDim2.new(ColorS, 0, 1 - ColorV, 0)
 
 				AddConnection(Color.InputBegan, function(input)
 					if input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then
@@ -2524,7 +2524,7 @@ function OrionLib:MakeWindow(WindowConfig)
 					Colorpicker.Value = Value
 					ColorpickerBox.BackgroundColor3 = Colorpicker.Value
 					ColorpickerConfig.Callback(Colorpicker.Value)
-				end
+				end; UpdateColorPicker(false)
 
 				function Colorpicker:SetColor(Color)
 					ColorpickerFrame.BackgroundColor3 = Color
