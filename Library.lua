@@ -2558,6 +2558,7 @@ function OrionLib:MakeWindow(WindowConfig)
 		local ElementFunction = {}
 
 		function ElementFunction:AddSection(SectionConfig)
+			SectionConfig = SectionConfig or {}
 			SectionConfig.Name = SectionConfig.Name or "Section"
 			SectionConfig.Side = SectionConfig.Side or "Left"  
 
