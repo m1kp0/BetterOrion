@@ -1,3 +1,1 @@
-# in progress
-Making docs❤️
-and fixing bugs😏
+90% documentation 
