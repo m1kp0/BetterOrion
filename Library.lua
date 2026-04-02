@@ -1093,7 +1093,7 @@ function OrionLib:MakeWindow(WindowConfig)
 		
         do
 			local width = (MainWindow.AbsoluteSize.X - TabHolder.Parent.AbsoluteSize.X + 15) / 2
-			ContainerLeft.Size = UDim2.new(0, width, 1, -60) -- используем Scale вместо Offset
+			ContainerLeft.Size = UDim2.new(0, width, 1, -60)
 			ContainerRight.Size = UDim2.new(0, width, 1, -60)
 			ContainerLeft.Position = UDim2.new(0, TabHolder.Parent.AbsoluteSize.X - 5, 0, 50)
 			ContainerRight.Position = UDim2.new(0, TabHolder.Parent.AbsoluteSize.X + width - 15, 0, 50)
