@@ -1581,6 +1581,10 @@ function OrionLib:MakeWindow(WindowConfig)
 							Toggle[i] = v 
 						end 
 					end
+
+					function Toggle:ChangeVisibility(Bool)
+						ToggleFrame.Visible = Bool
+					end
 					
 					function Toggle:Set(Value)
 						Toggle.Value = Value
@@ -2010,6 +2014,10 @@ function OrionLib:MakeWindow(WindowConfig)
 							Dropdown.Buttons[Option] = OptionBtn
 						end
 					end	
+
+					function Dropdown:ChangeVisibility(Bool)
+						DropdownFrame.Visible = Bool
+					end
 
 					function Dropdown:Refresh(Options, Delete)
 						if Delete then
