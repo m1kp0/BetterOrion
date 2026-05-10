@@ -312,7 +312,7 @@ local OrionLib = {
 			NotificationConfig.Image = NotificationConfig.Image or "server"
 			NotificationConfig.Time = NotificationConfig.Time or 5
 			NotificationConfig.Color = NotificationConfig.Color or game.CoreGui.BetterOrion.MainWindow.BackgroundColor3
-			NotificationConfig.TextColor = NotificationConfig.TextColor or game.CoreGui.BetterOrion.MainWindow.TopBar.WindowName.TextColor3
+			NotificationConfig.TextColor = NotificationConfig.TextColor or game.CoreGui.BetterOrion.MainWindow.TopBar.WindowNames.WindowName.TextColor3
 			NotificationConfig.Sound = NotificationConfig.Sound or ""
 			NotificationConfig.SoundVolume = NotificationConfig.SoundVolume or 1
 
@@ -529,20 +529,22 @@ function OrionLib:MakeWindow(WindowConfig)
 
 		local WindowName = AddThemeObject(SetProps(MakeElement("Label", WindowConfig.Name, 14), {
 			Size = UDim2.new(1, -30, 2, 0),
-			Position = UDim2.new(0, 25, 0, -24),
+			Position = UDim2.new(0, 25, 0, -45),
 			Font = Enum.Font.GothamBlack,
 			TextSize = 20,
 			Name = "WindowName",
+			Text = WindowConfig.Name,
 		}), "Text")
 
 		local WindowSubName = AddThemeObject(SetProps(MakeElement("Label", WindowConfig.SubName, 14), {
-			Size = UDim2.new(0, WindowName.TextBounds.X + 240, 1, 0),
-			Position = UDim2.new(0, WindowConfig.ShowIcon and WindowName.TextBounds.X + 170 or WindowName.TextBounds.X + 150, 0, -18),
+			Size = UDim2.new(1, -WindowName.TextBounds.X - 200, 1, 0),
+			Position = UDim2.new(0, WindowConfig.ShowIcon and WindowName.TextBounds.X + 60 or WindowName.TextBounds.X + 35, 0, -19),
 			Font = Enum.Font.GothamSemibold,
 			TextSize = 14,
 			TextWrapped = true,
 			TextXAlignment = Enum.TextXAlignment.Left,
 			Name = "WindowSubName",
+			Text = WindowConfig.SubName
 		}), "TextDark")
 
 		local WindowTopBarLine = AddThemeObject(SetProps(MakeElement("Frame"), {
@@ -564,7 +566,6 @@ function OrionLib:MakeWindow(WindowConfig)
 				Name = "TopBar",
 				BackgroundTransparency = 1,
 			}), {
-				WindowName,
 				WindowTopBarLine,
 				AddThemeObject(SetChildren(SetProps(MakeElement("RoundFrame", Color3.fromRGB(255, 255, 255), 0, 7), {
 					Size = UDim2.new(0, 70, 0, 30),
@@ -590,6 +591,7 @@ function OrionLib:MakeWindow(WindowConfig)
 					Position = UDim2.new(0, 0, 0, 20),
 					Name = "WindowNames",
 				}), {
+					WindowName,
 					WindowSubName,
 				}), "Elements"),
 			}),
@@ -604,8 +606,8 @@ function OrionLib:MakeWindow(WindowConfig)
 
 	-- Local window functions
 		if WindowConfig.ShowIcon then
-			WindowName.Position = UDim2.new(0, 50, 0, -24)
-			local WindowIcon = SetProps(MakeElement("Image", WindowConfig.Icon), {Size = UDim2.new(0, 20, 0, 20), Position = UDim2.new(0, 25, 0, 15), Name = "WindowIcon"})
+			WindowName.Position = UDim2.new(0, 50, 0, -45)
+			local WindowIcon = SetProps(MakeElement("Image", WindowConfig.Icon), {Size = UDim2.new(0, 20, 0, 20), Position = UDim2.new(0, 25, 0, 17.5), Name = "WindowIcon"})
 			WindowIcon.Parent = MainWindow.TopBar
 		end	
 
@@ -829,6 +831,11 @@ function OrionLib:MakeWindow(WindowConfig)
         AddResizingTabHolderFunctionality(ResizeTabHolderPoint, TabHolder.Parent)
 
 	-- Local window connections
+		AddConnection(WindowName:GetPropertyChangedSignal("TextBounds"), function()
+			WindowSubName.Size = UDim2.new(1, -WindowName.TextBounds.X - 240, 1, 0)
+			WindowSubName.Position = UDim2.new(0, WindowConfig.ShowIcon and WindowName.TextBounds.X + 60 or WindowName.TextBounds.X + 35, 0, -19)
+		end)
+		
 		AddConnection(CloseBtn.MouseButton1Up, function()
 			MainWindow.Visible = false
 			UIHidden = true
@@ -837,7 +844,7 @@ function OrionLib:MakeWindow(WindowConfig)
 				Content = "Tap "..tostring(WindowConfig.ToggleUIKey):split(".")[3].." to reopen the interface",
 				Time = 3,
 				Color = game.CoreGui.BetterOrion:GetChildren()[2].BackgroundColor3,
-				TextColor = game.CoreGui.BetterOrion:GetChildren()[2].TopBar.WindowName.TextColor3,
+				TextColor = game.CoreGui.BetterOrion:GetChildren()[2].TopBar.WindowNames.WindowName.TextColor3,
 				Image = "activity"
 			})
 		end)
@@ -976,7 +983,7 @@ function OrionLib:MakeWindow(WindowConfig)
 		function TabFunction:SetTextColor(Color)
 			local SubNameColor = Color3.fromRGB(Color.R * 180, Color.G * 180, Color.B * 180)
 
-			MainWindow.TopBar.WindowName.TextColor3 = Color
+			MainWindow.TopBar.WindowNames.WindowName.TextColor3 = Color
 			MainWindow.TopBar.WindowNames.WindowSubName.TextColor3 = SubNameColor
 
 			for i, Tab in next, TabHolder:GetChildren() do
@@ -2270,6 +2277,7 @@ function OrionLib:MakeWindow(WindowConfig)
 								return
 							end
 							Key = Key or Bind.Value
+							print(Input.KeyCode, Key)
 							Bind:Set(Key)
 						end
 					end)
