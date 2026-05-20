@@ -33,20 +33,22 @@
 	})
 
 -- Tabs creation
-	Elm.Tabs.SomeTab = Elm.Window:MakeTab({Name = "Tab", Icon = "person"})
-	Elm.Tabs.SomeTab2 = Elm.Window:MakeTab({Name = "Tab2", Icon = "person"})
+	Elm.Tabs.SomeTab = Elm.Window:MakeTab({Name = "Tab", Icon = "hand"})
+	Elm.Tabs.SomeTab2 = Elm.Window:MakeTab({Name = "Tab2", Icon = "cloud"})
+	Elm.Tabs.ConfigTab = Elm.Window:MakeTab({Name = "Config", Icon = "settings"})
 
--- Universal tab
+-- Tab
 	Elm.Sect.SomeSection = Elm.Tabs.SomeTab:AddSection({Name = "Left section", Side = "Left"})
 	Elm.Sect.SomeSection2 = Elm.Tabs.SomeTab:AddSection({Name = "Right section", Side = "Right"})
 	Elm.Sect.SomeSection3 = Elm.Tabs.SomeTab2:AddSection({Name = "Left section", Side = "Left"})
 	Elm.Sect.SomeSection4 = Elm.Tabs.SomeTab2:AddSection({Name = "Right section", Side = "Right"})
 
 	Elm.Sect.SomeSection:AddToggle({
-		Name = "Toggle",
+		Name = "Toggle (New UI)",
 		Default = false,
+		Flag = "NewUIToggle",
 		Callback = function(bool)
-			print(bool)
+			Elm.Window:NewUI(bool)
 		end
 	})
 
@@ -60,12 +62,12 @@
 		ValueName = "Speed",
 		Callback = function(value)
 			if tick() - lastprint >= 0.1 then
-				--print(value)
+				print(value)
 				lastprint = tick()
 			end
 		end,
 		InputEndedCallback = function(value)
-			--print("Input ended at:", value)
+			print("Input ended at:", value)
 		end
 	})
 	a:Set(123123)
@@ -119,7 +121,18 @@
 		end
 	})
 
-	Elm.Sect.SomeSection3:AddBind({
+	Elm.Sect.SomeSection3:AddToggle({
+		Name = "Toggle with settings",
+		Default = false,
+		Flag = "SettingsToggle",
+		Settings = true,
+		Callback = function(bool)
+			print("Settings toggle:", bool)
+		end
+	})
+
+	
+	BetterOrion.Flags["SettingsToggle"]:AddBind({
 		Name = "test",
 		Button = true,
 		DoubleTap = false,
@@ -170,3 +183,8 @@
 			print(color)
 		end
 	})
+
+BetterOrion:SetConfigTab("Config")
+BetterOrion:LoadAutoloadConfigs()
+BetterOrion:SaveAndLoadSizes()
+BetterOrion:Init()
