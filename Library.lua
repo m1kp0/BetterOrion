@@ -937,7 +937,7 @@ function OrionLib:MakeWindow(WindowConfig)
 			WatermarkConnection = RunService.RenderStepped:Connect(function()
 				FrameCounter = FrameCounter + 1
 				
-				if (tick() - FrameTimer) >= 0.5 then
+				if (tick() - FrameTimer) >= 1 then
 					FPS = FrameCounter
 					FrameTimer = tick()
 					FrameCounter = 0
