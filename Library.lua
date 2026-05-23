@@ -2069,6 +2069,7 @@ function OrionLib:MakeWindow(WindowConfig)
 								Toggle.BindValue = Toggle.BindValue.Name or Toggle.BindValue
 								BindBox.Value.Text = Toggle.BindValue
 							end
+							Toggle:SetBind("")
 						end
 
 						local ToggleFrame = AddThemeObject(SetChildren(SetProps(MakeElement("RoundFrame", Color3.fromRGB(255, 255, 255), 0, WindowConfig.NewUI and 10 or 5), {
@@ -3693,10 +3694,10 @@ function OrionLib:SetConfigTab(TabName)
 				Data = JSONDecode(ConfigFileName)
 				if Data then
 					for i,v in pairs(Data) do if OrionLib.Flags[i] then
-						task.spawn(pcall, function()
+						task.spawn(function()
 							if typeof(v) == "table" then
-								OrionLib.Flags[i]:Set(v.Value)
-								OrionLib.Flags[i]:SetBind(v.BindValue)
+								pcall(function() OrionLib.Flags[i]:SetBind(v.BindValue) end)
+								pcall(function() OrionLib.Flags[i]:Set(v.Value) end)
 							end
 						end)
 					end end
