@@ -73,6 +73,7 @@ local OrionLib = {
 	ScriptFolder = "BetterOrion",
 	GameName = tostring(game.PlaceId),
 	Window = nil,
+	ToggleUIKey = Enum.KeyCode.Tab
 }
 
 -- Icons
@@ -507,6 +508,7 @@ function OrionLib:MakeWindow(WindowConfig)
 
 		OrionLib.BackgroundURL = WindowConfig.BackgroundURL
 		OrionLib.BackgroundTransparency = WindowConfig.BackgroundTransparency
+		OrionLib.ToggleUIKey = WindowConfig.ToggleUIKey
 
 	-- Elements
 		local TabHolder = AddThemeObject(SetChildren(SetProps(MakeElement("ScrollFrame", Color3.fromRGB(255, 255, 255)), {
@@ -1294,6 +1296,7 @@ function OrionLib:MakeWindow(WindowConfig)
 		function TabFunction:SetToggleKey(Key)
 			local KeyCode = Key or Enum.KeyCode.RightShift
 			WindowConfig.ToggleUIKey = Enum.KeyCode[KeyCode]
+			OrionLib.ToggleUIKey = WindowConfig.ToggleUIKey
 		end
 
 		function TabFunction:DestroyElement(Flag)
@@ -2779,6 +2782,7 @@ function OrionLib:MakeWindow(WindowConfig)
 
 						if BindConfig.UIBind then
 							WindowConfig.ToggleUIKey = BindConfig.Default
+							OrionLib.ToggleUIKey = WindowConfig.ToggleUIKey
 						end
 
 						local Holding = false
@@ -2969,6 +2973,7 @@ function OrionLib:MakeWindow(WindowConfig)
 
 							if BindConfig.UIBind then
 								WindowConfig.ToggleUIKey = Bind.Value
+								OrionLib.ToggleUIKey = WindowConfig.ToggleUIKey
 							end
 						end
 
