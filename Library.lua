@@ -99,6 +99,7 @@ local OrionLib = {
 		if Icons[IconName] ~= nil then return Icons[IconName] else return nil end
 	end   
 	local function GetLucideIcon(IconName)
+		if IconName == nil then return nil end
 		local NameSplit = IconName:split("://")
 		if NameSplit and NameSplit[2] ~= nil then return IconName end
 		if IconName ~= nil then return LucideIcons["lucide-"..IconName] end
@@ -727,7 +728,7 @@ function OrionLib:MakeWindow(WindowConfig)
 			local WindowIcon = SetProps(MakeElement("Image", WindowConfig.Icon), {
 				Size = UDim2.new(0, 20, 0, 20), 
 				Position = UDim2.new(0, 25, 0, 17.5), 
-				Name = "WindowIcon"
+				Name = "WindowIcon",
 				ScaleType = Enum.ScaleType.Fit,
 			})
 			WindowIcon.Parent = MainWindow.TopBar
