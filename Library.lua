@@ -99,11 +99,10 @@ local OrionLib = {
 		if Icons[IconName] ~= nil then return Icons[IconName] else return nil end
 	end   
 	local function GetLucideIcon(IconName)
-		if IconName ~= nil then
-			return LucideIcons["lucide-"..IconName]
-		else 
-			return nil 
-		end
+		local NameSplit = IconName:split("://")
+		if NameSplit and NameSplit[2] ~= nil then return IconName end
+		if IconName ~= nil then return LucideIcons["lucide-"..IconName] end
+		return nil 
 	end
 
 	local function AddConnection(Signal, Function)
@@ -1547,6 +1546,10 @@ function OrionLib:MakeWindow(WindowConfig)
 				WatermarkFrame:Destroy()
 				WatermarkFrame = nil
 			end
+		end
+
+		function TabFunction:GetToggleUIKey()
+			return Window.ToggleUIKey
 		end
 
 	-- Make tab
