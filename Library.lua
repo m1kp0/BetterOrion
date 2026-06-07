@@ -405,6 +405,7 @@ local OrionLib = {
 					ImageColor3 = NotificationConfig.TextColor,
 					Name = "Icon",
 					BackgroundTransparency = 1,
+					ScaleType = Enum.ScaleType.Fit, 
 				}),
 				SetProps(MakeElement("Label", NotificationConfig.Name, 15), {
 					Size = UDim2.new(1, -30, 0, 20),
@@ -723,7 +724,12 @@ function OrionLib:MakeWindow(WindowConfig)
 	-- Local window functions
 		if WindowConfig.ShowIcon then
 			WindowName.Position = UDim2.new(0, 50, 0, -45)
-			local WindowIcon = SetProps(MakeElement("Image", WindowConfig.Icon), {Size = UDim2.new(0, 20, 0, 20), Position = UDim2.new(0, 25, 0, 17.5), Name = "WindowIcon"})
+			local WindowIcon = SetProps(MakeElement("Image", WindowConfig.Icon), {
+				Size = UDim2.new(0, 20, 0, 20), 
+				Position = UDim2.new(0, 25, 0, 17.5), 
+				Name = "WindowIcon"
+				ScaleType = Enum.ScaleType.Fit,
+			})
 			WindowIcon.Parent = MainWindow.TopBar
 		end	
 
