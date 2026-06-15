@@ -75,7 +75,7 @@ local OrionLib = {
 	Window = nil,
 	ToggleUIKey = Enum.KeyCode.Tab
 }
-
+OrionLib.SectionLabels = {}
 -- Icons
 	local Icons = {}
 	local LucideIcons = loadstring(game:HttpGet("https://raw.githubusercontent.com/m1kp0/BetterOrion/refs/heads/main/Icons.lua"))().assets
@@ -187,6 +187,16 @@ local OrionLib = {
 				Object[ReturnProperty(Object, "Transparency")] = OrionLib.Themes[OrionLib.SelectedTheme][Name]["Transparency"]
 			end    
 		end    
+	end
+
+	local function UpdateAllSectionLabels()
+		local currentTheme = OrionLib.Themes[OrionLib.SelectedTheme]
+		for _, label in ipairs(OrionLib.SectionLabels) do
+			if label and label.Parent then
+				label.TextColor3 = currentTheme["Text"]["Color"]
+				label.TextTransparency = currentTheme["Text"]["Transparency"]
+			end
+		end
 	end
 
 	local function PackColor(Color)
@@ -721,7 +731,7 @@ function OrionLib:MakeWindow(WindowConfig)
 			DragPoint,
 			WindowStuff
 		}), "Main")
-
+OrionLib:SetWindowRefs(MainWindow, MainWindow.FakeMainWindowNew, MainWindow.TopBar, WindowStuff, WatermarkFrame)
 	-- Local window functions
 		if WindowConfig.ShowIcon then
 			WindowName.Position = UDim2.new(0, 50, 0, -45)
@@ -1116,7 +1126,9 @@ function OrionLib:MakeWindow(WindowConfig)
 					v.Visible = true
 				end
 				VisibleContainers = {}
+				Val.MinimizedSize = false
 			else
+				Val.MinimizedSize = true
 				MainWindow.ClipsDescendants = true
 				WindowTopBarLine.Visible = false
 				MinimizeBtn.Ico.Image = "rbxassetid://7072720870"
@@ -1659,6 +1671,7 @@ function OrionLib:MakeWindow(WindowConfig)
 				local width
 				local function SetSizes()
 					width = (MainWindow.AbsoluteSize.X - TabHolder.Parent.AbsoluteSize.X + 5) / 2
+					width = width > 0 and width or 0
 
 					ContainerLeft.Size = UDim2.new(0, width + (WindowConfig.NewUI and 0 or 5), 1, WindowConfig.NewUI and -80 or -60)
 					ContainerRight.Size = UDim2.new(0, width + (WindowConfig.NewUI and 0 or 5), 1, WindowConfig.NewUI and -80 or -60)
@@ -1675,6 +1688,7 @@ function OrionLib:MakeWindow(WindowConfig)
 
 					MainWindow.FakeMainWindowNew.Position = UDim2.new(0, TabHolder.Parent.AbsoluteSize.X + 5, 0, 55)
 					MainWindow.FakeMainWindowNew.Size = UDim2.new(1, -TabHolder.Parent.AbsoluteSize.X - 5, 1, -55)
+					if not Val.MinimizedSize then WindowConfig.Size = MainWindow.Size end
 				end; SetSizes()
 
 				AddConnection(TabHolder.Parent:GetPropertyChangedSignal("AbsoluteSize"), SetSizes)
@@ -1867,13 +1881,12 @@ function OrionLib:MakeWindow(WindowConfig)
 							})
 
 							local SettingsButton = SetProps(MakeElement("Image", "rbxassetid://10734950309"), {
-								Parent = ButtonFrame,
+								Parent = ToggleFrame,
 								Size = UDim2.new(0, 24, 0, 24),
 								Position = UDim2.new(1, -30, 0, 7),
-								ImageColor3 = Color3.fromRGB(240, 240, 240),
+								ImageColor3 = OrionLib.Themes[OrionLib.SelectedTheme]["Text"]["Color"],
 								Name = "SettingsIco"
 							})
-
 							AddConnection(SettingsButton.InputBegan, function(Input)
 								SettingsInput = true
 							end)
@@ -2137,7 +2150,7 @@ function OrionLib:MakeWindow(WindowConfig)
 								Parent = ToggleFrame,
 								Size = UDim2.new(0, 24, 0, 24),
 								Position = UDim2.new(1, -30, 0, 7),
-								ImageColor3 = Color3.fromRGB(240, 240, 240),
+								ImageColor3 = OrionLib.Themes[OrionLib.SelectedTheme]["TextDark"]["Color"],
 								Name = "SettingsIco"
 							})
 
@@ -3046,6 +3059,11 @@ function OrionLib:MakeWindow(WindowConfig)
 							TextSize = 14,
 							ClearTextOnFocus = false
 						}), "Text")
+						
+						if not OrionLib.ThemeObjects["Textboxes"] then
+							OrionLib.ThemeObjects["Textboxes"] = {}
+						end
+						table.insert(OrionLib.ThemeObjects["Textboxes"], TextboxActual)
 
 						local TextContainer = AddThemeObject(SetChildren(SetProps(MakeElement("RoundFrame", Color3.fromRGB(255, 255, 255), 0, WindowConfig.NewUI and 7 or 4), {
 							Size = UDim2.new(0, 24, 0, 24),
@@ -3131,7 +3149,7 @@ function OrionLib:MakeWindow(WindowConfig)
 							TextboxFrame.Content.TextColor3 = Color
 						end
 
-                        function Textbox:SetTextTransparency(Transparency)
+						function Textbox:SetTextTransparency(Transparency)
 							TextboxFrame.Content.TextTransparency = Transparency
 						end
 
@@ -3179,7 +3197,7 @@ function OrionLib:MakeWindow(WindowConfig)
 						end)
 
 						table.insert(OrionLib.UIElements, Textbox)
-					end 
+					end
 
 					function ItemParent2:AddColorpicker(ColorpickerConfig)
 						ColorpickerConfig = ColorpickerConfig or {}
@@ -3590,15 +3608,22 @@ function OrionLib:MakeWindow(WindowConfig)
 
 				local ContainerSection = (SectionConfig.Side == "Left") and ContainerLeft or ContainerRight
 
+				local SectionLabel = SetProps(MakeElement("Label", SectionConfig.Name, 14), {
+					Size = UDim2.new(1, -12, 0, 20),
+					Position = UDim2.new(0, 0, 0, -20),
+					Font = Enum.Font.GothamSemibold
+				})
+				
+				table.insert(OrionLib.SectionLabels, SectionLabel)
+				
+				SectionLabel.TextColor3 = OrionLib.Themes[OrionLib.SelectedTheme]["Text"]["Color"]
+				SectionLabel.TextTransparency = OrionLib.Themes[OrionLib.SelectedTheme]["Text"]["Transparency"]
+
 				local SectionFrame = SetChildren(SetProps(MakeElement("TFrame"), {
 					Size = UDim2.new(1, 0, 0, 10),
 					Parent = ContainerSection
 				}), {
-					AddThemeObject(SetProps(MakeElement("Label", SectionConfig.Name, 14), {
-						Size = UDim2.new(1, -12, 0, 20),
-						Position = UDim2.new(0, 0, 0, -20),
-						Font = Enum.Font.GothamSemibold
-					}), "Text"),
+					SectionLabel,
 					SetChildren(SetProps(MakeElement("TFrame"), {
 						AnchorPoint = Vector2.new(0, 0),
 						Size = UDim2.new(0.5, 0, 1, 0),
@@ -3617,7 +3642,7 @@ function OrionLib:MakeWindow(WindowConfig)
 				local SectionFunction = {}
 				for i, v in next, GetElements(SectionFrame.Holder) do SectionFunction[i] = v end
 				return SectionFunction
-			end	
+			end
 
 			OrionLib.Tabs[TabConfig.Name] = ElementFunction
 			return ElementFunction   
@@ -3914,7 +3939,90 @@ function OrionLib:SetConfigTab(TabName)
 					for _, Element in next, OrionLib.UIElements do
 						Element:SetTextColor(Color)
 						Element:SetTextTransparency(Transparency)
-					end 
+					end
+					
+					for _, sectionLabel in pairs(OrionLib.SectionLabels) do
+						if sectionLabel and sectionLabel.Parent then
+							sectionLabel.TextColor3 = Color
+							sectionLabel.TextTransparency = Transparency
+						end
+					end
+					for _, textBox in pairs(OrionLib.ThemeObjects["Textboxes"] or {}) do
+						if textBox and textBox.Parent then
+							textBox.PlaceholderColor3 = Color
+						end
+					end
+					for _, textboxFrame in pairs(OrionLib.ThemeObjects["Elements"] or {}) do
+						if textboxFrame.Name == "Textbox" then
+							local contentLabel = textboxFrame:FindFirstChild("Content")
+							if contentLabel then
+								contentLabel.TextColor3 = Color
+								contentLabel.TextTransparency = Transparency
+							end
+							local textBox = textboxFrame:FindFirstChildWhichIsA("TextBox")
+							if textBox then
+								textBox.TextColor3 = Color
+								textBox.TextTransparency = Transparency
+							end
+						end
+					end
+					
+					for _, dropdownFrame in pairs(OrionLib.ThemeObjects["Elements"] or {}) do
+						if dropdownFrame.Name == "Dropdown" then
+							local ico = dropdownFrame:FindFirstChild("F") and dropdownFrame.F:FindFirstChild("Ico")
+							if ico then
+								ico.ImageColor3 = Color
+							end
+							local content = dropdownFrame:FindFirstChild("F") and dropdownFrame.F:FindFirstChild("Content")
+							if content then
+								content.TextColor3 = Color
+								content.TextTransparency = Transparency
+							end
+						end
+					end
+					
+					for _, buttonFrame in pairs(OrionLib.ThemeObjects["Elements"] or {}) do
+						if buttonFrame.Name == "Button" then
+							local image = buttonFrame:FindFirstChild("Image")
+							if image then
+								image.ImageColor3 = Color
+							end
+							local content = buttonFrame:FindFirstChild("Content")
+							if content then
+								content.TextColor3 = Color
+								content.TextTransparency = Transparency
+							end
+						end
+					end
+					
+					for _, toggleFrame in pairs(OrionLib.ThemeObjects["Elements"] or {}) do
+						local settingsBtn = toggleFrame:FindFirstChild("SettingsIco")
+						if settingsBtn then
+							settingsBtn.ImageColor3 = Color
+						end
+					end
+				end
+			})
+
+			local NewUIToggle = Sections.ThemeSection:AddToggle({
+				Name = "New UI",
+				Default = false,
+				Flag = "NewUIStyle",
+				Callback = function(state)
+					OrionLib.Window:NewUI(state)
+				end
+			})
+
+			Sections.ThemeSection:AddSlider({
+				Name = "Window Corner Radius",
+				Min = 0,
+				Max = 25,
+				Default = 10,
+				Increment = 1,
+				ValueName = "px",
+				Flag = "WindowCornerRadius",
+				Callback = function(Value)
+					OrionLib:SetCornerRadius(Value)
 				end
 			})
 
@@ -4268,5 +4376,33 @@ end
 function OrionLib:Destroy()
 	Orion:Destroy()
 end
+local WindowRefs = {}
 
+function OrionLib:SetWindowRefs(mainWin, fakeMain, topBar, winStuff, watermark)
+    WindowRefs.MainWindow = mainWin
+    WindowRefs.FakeMainWindowNew = fakeMain
+    WindowRefs.TopBar = topBar
+    WindowRefs.WindowStuff = winStuff
+    WindowRefs.WatermarkFrame = watermark
+end
+
+function OrionLib:SetCornerRadius(radius)
+    local tweenInfo = TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+    
+    if WindowRefs.MainWindow and WindowRefs.MainWindow.UICorner then
+        TweenService:Create(WindowRefs.MainWindow.UICorner, tweenInfo, {CornerRadius = UDim.new(0, radius)}):Play()
+    end
+    if WindowRefs.FakeMainWindowNew and WindowRefs.FakeMainWindowNew.UICorner then
+        TweenService:Create(WindowRefs.FakeMainWindowNew.UICorner, tweenInfo, {CornerRadius = UDim.new(0, radius)}):Play()
+    end
+    if WindowRefs.TopBar and WindowRefs.TopBar.UICorner then
+        TweenService:Create(WindowRefs.TopBar.UICorner, tweenInfo, {CornerRadius = UDim.new(0, radius)}):Play()
+    end
+    if WindowRefs.WindowStuff and WindowRefs.WindowStuff.UICorner then
+        TweenService:Create(WindowRefs.WindowStuff.UICorner, tweenInfo, {CornerRadius = UDim.new(0, radius)}):Play()
+    end
+    if WindowRefs.WatermarkFrame and WindowRefs.WatermarkFrame.UICorner then
+        TweenService:Create(WindowRefs.WatermarkFrame.UICorner, tweenInfo, {CornerRadius = UDim.new(0, radius)}):Play()
+    end
+end
 return OrionLib
