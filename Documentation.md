@@ -1,6 +1,6 @@
 # Load library
 ```lua
-local BetterOrion = loadstring(game:HttpGet("https://raw.githubusercontent.com/m1kp0/BetterOrion/refs/heads/main/Library.lua"))()
+local BetterOrion = loadstring(game:HttpGet("https://gitlab.com/m1kp0/BetterOrion/raw/main/Library.lua"))()
 ```
 
 # Important
@@ -12,7 +12,7 @@ loadstring(game:HttpGet("https://raw.githubusercontent.com/m1kp0/BetterOrion/ref
 
 #### 3. All properties are optional, so you can do this:
 ```lua
-local BetterOrion = loadstring(game:HttpGet("https://raw.githubusercontent.com/m1kp0/BetterOrion/refs/heads/main/Library.lua"))()
+local BetterOrion = loadstring(game:HttpGet("https://gitlab.com/m1kp0/BetterOrion/raw/main/Library.lua"))()
 local Window = BetterOrion:MakeWindow()
 local Tab = Window:MakeTab()
 local Section = Tab:AddSection()
